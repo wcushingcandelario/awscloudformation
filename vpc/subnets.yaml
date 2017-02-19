@@ -1,0 +1,492 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'VPC Template: public and private subnets in three AZs, including NAT gateways in each public subnet with private subnets having egress through the NAT gateway in its AZ.'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parameters'
+      Parameters:
+      - ClassA
+      - ClassB
+
+Parameters:
+  ClassA:
+    Description: 'Class A of VPC (XXX.0.0.0/19)'
+    Type: Number
+    Default: 10
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
+  ClassB:
+    Description: 'Class B of VPC (0.XXX.0.0/19)'
+    Type: Number
+    Default: 11
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
+  ProjectName:
+    Description: 'Project name for billing purposes.'
+    Type: String
+    Default: 'oneview'
+    ConstraintDescription: 'Must be a string matching the customer name for tagging purposes.'
+  LiveIdentifier:
+    Description: 'Indicator for "nonproduction" or "production" resources.'
+    Type: String
+    Default: 'nonproduction'
+    AllowedValues:
+      - nonproduction
+      - production
+    ConstraintDescription: 'Must be a string of either "nonproduction" or "production" to indicate the resources lifecycle state.'
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !Sub '${ClassA}.${ClassB}.0.0/19'
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+      - Key: Name
+        Value: !Sub '${ClassA}.${ClassB}.0.0/19 - ${AWS::StackName}'
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+      - Key: Name
+        Value: !Sub '${ClassA}.${ClassB}.0.0/19'
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  SubnetAPublic:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: !Sub '${ClassA}.${ClassB}.0.0/24'
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'A public'
+      - Key: Reach
+        Value: public
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  SubnetAPrivate:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: !Sub '${ClassA}.${ClassB}.1.0/24'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'A private'
+      - Key: Reach
+        Value: private
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  SubnetBPublic:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: !Sub '${ClassA}.${ClassB}.2.0/24'
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'B public'
+      - Key: Reach
+        Value: public
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  SubnetBPrivate:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: !Sub '${ClassA}.${ClassB}.3.0/24'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'B private'
+      - Key: Reach
+        Value: private
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  SubnetCPublic:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: !Sub '${ClassA}.${ClassB}.4.0/24'
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'C public'
+      - Key: Reach
+        Value: public
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  SubnetCPrivate:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      CidrBlock: !Sub '${ClassA}.${ClassB}.5.0/24'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'C private'
+      - Key: Reach
+        Value: private
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  RouteTablePublic:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: Public
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  RouteTablePrivateA:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: Private A
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  RouteTablePrivateB:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: Private B
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  RouteTablePrivateC:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: Private C
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  RouteTableAssociationAPublic:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetAPublic
+      RouteTableId: !Ref RouteTablePublic
+  RouteTableAssociationAPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetAPrivate
+      RouteTableId: !Ref RouteTablePrivateA
+  RouteTableAssociationBPublic:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetBPublic
+      RouteTableId: !Ref RouteTablePublic
+  RouteTableAssociationBPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetBPrivate
+      RouteTableId: !Ref RouteTablePrivateB
+  RouteTableAssociationCPublic:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetCPublic
+      RouteTableId: !Ref RouteTablePublic
+  RouteTableAssociationCPrivate:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetCPrivate
+      RouteTableId: !Ref RouteTablePrivateC
+  RouteTablePublicInternetRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTablePublic
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+  NetworkAclPublic:
+    Type: 'AWS::EC2::NetworkAcl'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: Public
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  NetworkAclPrivate:
+    Type: 'AWS::EC2::NetworkAcl'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: Private
+      - Key: Project
+        Value: !Sub '${ProjectName}'
+      - Key: LiveIdentifier
+        Value: !Sub '${LiveIdentifier}'
+  SubnetNetworkAclAssociationAPublic:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref SubnetAPublic
+      NetworkAclId: !Ref NetworkAclPublic
+  SubnetNetworkAclAssociationAPrivate:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref SubnetAPrivate
+      NetworkAclId: !Ref NetworkAclPrivate
+  SubnetNetworkAclAssociationBPublic:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref SubnetBPublic
+      NetworkAclId: !Ref NetworkAclPublic
+  SubnetNetworkAclAssociationBPrivate:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref SubnetBPrivate
+      NetworkAclId: !Ref NetworkAclPrivate
+  SubnetNetworkAclAssociationCPublic:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref SubnetCPublic
+      NetworkAclId: !Ref NetworkAclPublic
+  SubnetNetworkAclAssociationCPrivate:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref SubnetCPrivate
+      NetworkAclId: !Ref NetworkAclPrivate
+  NetworkAclEntryInPublicAllowAll:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPublic
+      RuleNumber: 99
+      Protocol: -1
+      RuleAction: allow
+      Egress: false
+      CidrBlock: '0.0.0.0/0'
+  NetworkAclEntryOutPublicAllowAll:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPublic
+      RuleNumber: 99
+      Protocol: -1
+      RuleAction: allow
+      Egress: true
+      CidrBlock: '0.0.0.0/0'
+  NetworkAclEntryInPrivateAllowVPC:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPrivate
+      RuleNumber: 99
+      Protocol: -1
+      RuleAction: allow
+      Egress: false
+      CidrBlock: '0.0.0.0/0'
+  NetworkAclEntryOutPrivateAllowVPC:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref NetworkAclPrivate
+      RuleNumber: 99
+      Protocol: -1
+      RuleAction: allow
+      Egress: true
+      CidrBlock: '0.0.0.0/0'
+  EndpointS3:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      RouteTableIds:
+      - !Ref RouteTablePrivateA
+      - !Ref RouteTablePrivateB
+      - !Ref RouteTablePrivateC
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcId: !Ref VPC
+  EIPA:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  EIPB:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  EIPC:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  NatGatewayA:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 'EIPA.AllocationId'
+      SubnetId: !Ref SubnetAPublic
+  NatGatewayB:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 'EIPB.AllocationId'
+      SubnetId: !Ref SubnetBPublic
+  NatGatewayC:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 'EIPC.AllocationId'
+      SubnetId: !Ref SubnetCPublic
+  RouteA:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTablePrivateA
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGatewayA
+  RouteB:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTablePrivateB
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGatewayB
+  RouteC:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTablePrivateC
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGatewayC
+Outputs:
+  AZs:
+    Description: 'AZs'
+    Value: 3
+    Export:
+      Name: !Sub '${AWS::StackName}-AZs'
+  AZA:
+    Description: 'AZ of A'
+    Value: !Select [0, !GetAZs '']
+    Export:
+      Name: !Sub '${AWS::StackName}-AZA'
+  AZB:
+    Description: 'AZ of B'
+    Value: !Select [1, !GetAZs '']
+    Export:
+      Name: !Sub '${AWS::StackName}-AZB'
+  AZC:
+    Description: 'AZ of C'
+    Value: !Select [2, !GetAZs '']
+    Export:
+      Name: !Sub '${AWS::StackName}-AZC'
+  ClassA:
+    Description: 'Class A.'
+    Value: !Ref ClassA
+    Export:
+      Name: !Sub '${AWS::StackName}-ClassA'
+  ClassB:
+    Description: 'Class B.'
+    Value: !Ref ClassB
+    Export:
+      Name: !Sub '${AWS::StackName}-ClassB'
+  ProjectName:
+    Description: 'Project Name'
+    Value: !Ref ProjectName
+    Export:
+      Name: !Sub '${AWS::StackName}-ProjectName'
+  LiveIdentifier:
+    Description: 'Project Live Status Identifier'
+    Value: !Ref LiveIdentifier
+    Export:
+      Name: !Sub '${AWS::StackName}-LiveIdentifier'
+  VPC:
+    Description: 'VPC.'
+    Value: !Ref VPC
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC'
+  SubnetsPublic:
+    Description: 'Subnets public.'
+    Value: !Join [',', [!Ref SubnetAPublic, !Ref SubnetBPublic, !Ref SubnetCPublic]]
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetsPublic'
+  SubnetsPrivate:
+    Description: 'Subnets private.'
+    Value: !Join [',', [!Ref SubnetAPrivate, !Ref SubnetBPrivate, !Ref SubnetCPrivate]]
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetsPrivate'
+  RouteTablePrivateA:
+    Description: 'Route table private A.'
+    Value: !Ref RouteTablePrivateA
+    Export:
+      Name: !Sub '${AWS::StackName}-RouteTablePrivateA'
+  RouteTablePrivateB:
+    Description: 'Route table private B.'
+    Value: !Ref RouteTablePrivateA
+    Export:
+      Name: !Sub '${AWS::StackName}-RouteTablePrivateB'
+  RouteTablePrivateC:
+    Description: 'Route table private C.'
+    Value: !Ref RouteTablePrivateC
+    Export:
+      Name: !Sub '${AWS::StackName}-RouteTablePrivateC'
+  RouteTablePublic:
+    Description: 'Route table public.'
+    Value: !Ref RouteTablePublic
+    Export:
+      Name: !Sub '${AWS::StackName}-RouteTablePublic'
+  SubnetAPublic:
+    Description: 'Subnet A public.'
+    Value: !Ref SubnetAPublic
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetAPublic'
+  SubnetAPrivate:
+    Description: 'Subnet A private.'
+    Value: !Ref SubnetAPrivate
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetAPrivate'
+  SubnetBPublic:
+    Description: 'Subnet B public.'
+    Value: !Ref SubnetBPublic
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetBPublic'
+  SubnetBPrivate:
+    Description: 'Subnet B private.'
+    Value: !Ref SubnetBPrivate
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetBPrivate'
+  SubnetCPublic:
+    Description: 'Subnet C public.'
+    Value: !Ref SubnetCPublic
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetCPublic'
+  SubnetCPrivate:
+    Description: 'Subnet C private.'
+    Value: !Ref SubnetCPrivate
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetCPrivate'

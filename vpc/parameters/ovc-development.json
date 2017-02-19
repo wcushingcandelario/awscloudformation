@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ClassA",
+         "ParameterValue": "10"
+     },
+    {
+         "ParameterKey": "ClassB",
+         "ParameterValue": "20"
+     },
+    {
+         "ParameterKey": "ProjectName",
+         "ParameterValue": "sometest"
+     },
+    {
+         "ParameterKey": "LiveIdentifier",
+         "ParameterValue": "nonproduction"
+     }
+]

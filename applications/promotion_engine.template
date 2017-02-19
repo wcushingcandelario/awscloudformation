@@ -1,0 +1,118 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Development promotion environment template.'
+# Metadata:
+#   'AWS::CloudFormation::Interface':
+#     ParameterGroups:
+#     - Label:
+#         default: 'VPC Parameters'
+#       Parameters:
+#       - ClassA
+#       - ClassB
+#
+# Parameters:
+#   ParentVPCStack:
+#     Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+#     Type: String
+
+Resources:
+  promoserver:
+    Type: "AWS::ElasticBeanstalk::Environment"
+    Properties:
+      ApplicationName: promo-server
+      Description: cfmtesting environment
+      EnvironmentName: cfm-test
+      OptionSettings:
+
+        - Namespace: aws:elb:loadbalancer
+          OptionName: CrossZone
+          Value: false
+        - Namespace: aws:elasticbeanstalk:application
+          OptionName: Application Healthcheck URL
+          Value: HTTP:3000/healthcheck
+        - Namespace: aws:elb:listener
+          OptionName: ListenerEnabled
+          Value: false
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value: aws-elasticbeanstalk-service-role
+        - Namespace: aws:elasticbeanstalk:healthreporting:system
+          OptionName: SystemType
+          Value: enhanced
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value: subnet-9f8a92b7
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value: vpc-e8932b8d
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value: subnet-9f8a92b7
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBScheme
+          Value: internet-facing
+        - Namespace: aws:ec2:vpc
+          OptionName: AssociatePublicIpAddress
+          Value: true
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: aws-elasticbeanstalk-ec2-role
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t2.small
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: ovc-demo
+
+        - Namespace: aws:elb:listener:3000
+          OptionName: ListenerProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:3000
+          OptionName: InstanceProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:3000
+          OptionName: InstancePort
+          Value: 3000
+        - Namespace: aws:elb:listener:8888
+          OptionName: InstanceProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:8888
+          OptionName: ListenerProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:8888
+          OptionName: InstancePort
+          Value: 8888
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: 1
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: 2
+
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: MONGO_URL
+          Value: mongodb://mongodb-mbsit99.ovcdemo.com/cfm-ovcpromo
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DASH_PATH
+          Value: http://qamysql.ovcdemo.com/ovcdashboard/
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: MAX_PROMO_ID
+          Value: 999999
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVC_URL
+          Value: http://qamysql.ovcdemo.com:8080
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: PROMO_PATH
+          Value: http://qape.ovcdemo.com:3000/promotions/
+
+      SolutionStackName: "64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)"
+      Tags:
+        - Key: "role"
+          Value: "promoengine"
+        - Key: "environment"
+          Value: "dev"
+        - Key: "project"
+          Value: "dev"

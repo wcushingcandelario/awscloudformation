@@ -1,0 +1,120 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Security group configuration for OneView Commerce POS Server'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  # ParentProjectName:
+  #   Description: 'Project name.'
+  #   Type: String
+  # DBServerInstanceType:
+  #   Description: 'The instance type of database server (e.g. db.t2.medium).'
+  #   Type: String
+  #   Default: 'db.t2.medium'
+
+Resources:
+
+  CFLoadBalancerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'POS Server load balancer security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      SecurityGroupIngress:
+      - FromPort: 443
+        IpProtocol: tcp
+        ToPort: 443
+        CidrIp: '192.168.0.0/16'
+
+  CFLoadBalancerSecurityGroupInOVC:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref CFLoadBalancerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      CidrIp: '192.168.0.0/16'
+      Tags:
+      - Key: Name
+        Value: LoadBalancerSecurityGroupTEST
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  CFPOSServerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'POS server security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      SecurityGroupIngress:
+      - FromPort: 443
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref CFLoadBalancerSecurityGroup
+        ToPort: 443
+
+  CFPOSServerSecurityGroupInOVC:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref CFPOSServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: '192.168.0.0/16'
+
+  CFPOSServerSecurityGroupSSHFromOVC:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref CFPOSServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 99
+      ToPort: 99
+      CidrIp: '192.168.0.0/16'
+
+  CFDatabaseSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'RDS security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 3306
+        ToPort: 3306
+        SourceSecurityGroupId: !Ref CFPOSServerSecurityGroup
+
+  DBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: 'DB subnet group'
+      SubnetIds:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivate'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivate'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivate'
+
+  # Database:
+  #   Type: 'AWS::RDS::DBInstance'
+  #   Properties:
+  #     AllocatedStorage: 25
+  #     BackupRetentionPeriod: 10
+  #     DBInstanceClass: !Ref DBServerInstanceType
+  #     DBName: xdb
+  #     Engine: MySQL
+  #     MasterUsername: root
+  #     MasterUserPassword: p@ssw0rd
+  #     VPCSecurityGroups:
+  #     - !Ref CFDatabaseSecurityGroup
+  #     DBSubnetGroupName: !Ref DBSubnetGroup
+  #     MultiAZ: false
+  #     StorageType: gp2
