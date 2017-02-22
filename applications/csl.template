@@ -9,29 +9,29 @@ Metadata:
       Parameters:
       - EnvironmentType
       - ProjectName
-    - Label:
-        default: 'Environment Configuration'
-      Parameters:
-      - OVCURL
-      - MONGOURL
-      - DASHPATH
-      - MAXPROMOID
-      - PROMOPATH
-    ParameterLabels:
-      EnvironmentType:
-        default: "Specify the type of environment this instance will be used in."
-      ProjectName:
-        default: "What project is this environment related to?"
-      OVCURL:
-        default: "Specify the URL for the OVC server. eg: http://devmysql.ovcdemo.com:8080"
-      MONGOURL:
-        default: "Specify the URL for the MongoDB connection.  eg: mongodb://mongodb.ovcdemo.ovc/dbname"
-      DASHPATH:
-        default: "Specify the URL for the OVC Dashboard. eg: http://devmysql.ovcdemo.com/ovcdashboard/"
-      MAXPROMOID:
-        default: "Specify the maximum length of the Promo IDs expressed with 9s. eg: 999999"
-      PROMOPATH:
-        default: "Specify the URL for the OVC Promotion Engine. eg: http://dev-promo.ovcdemo.com:3000/promotions/"
+    # - Label:
+    #     default: 'Environment Configuration'
+    #   Parameters:
+    #   - OVCURL
+    #   - MONGOURL
+    #   - DASHPATH
+    #   - MAXPROMOID
+    #   - PROMOPATH
+    # ParameterLabels:
+    #   EnvironmentType:
+    #     default: "Specify the type of environment this instance will be used in."
+    #   ProjectName:
+    #     default: "What project is this environment related to?"
+    #   OVCURL:
+    #     default: "Specify the URL for the OVC server. eg: http://devmysql.ovcdemo.com:8080"
+    #   MONGOURL:
+    #     default: "Specify the URL for the MongoDB connection.  eg: mongodb://mongodb.ovcdemo.ovc/dbname"
+    #   DASHPATH:
+    #     default: "Specify the URL for the OVC Dashboard. eg: http://devmysql.ovcdemo.com/ovcdashboard/"
+    #   MAXPROMOID:
+    #     default: "Specify the maximum length of the Promo IDs expressed with 9s. eg: 999999"
+    #   PROMOPATH:
+    #     default: "Specify the URL for the OVC Promotion Engine. eg: http://dev-promo.ovcdemo.com:3000/promotions/"
 
 Parameters:
   EnvironmentType:
@@ -46,68 +46,78 @@ Parameters:
     ConstraintDescription: Specify the type of environment this instance will be used in.
   ProjectName:
     Description: Project ID.
-    Default: dev
+    Default: dt
     Type: String
     AllowedValues:
-      - auspost
-      - dev
-      - ibm
-      - mb
-      - o2
-      - ops
-      - partners
-      - sales
-      - tp
+      - dt
     ConstraintDescription: Specify the project to user for billing.
-  OVCURL:
-    Description: OVC Server URL.
-    Default: http://devmysql.ovcdemo.com:8080
+  POSURL:
+    Description: OVC POS URL
+    Default: http://localhost:32040/index.html
     Type: String
-    ConstraintDescription: Specify the URL for the OVC server.
-  MONGOURL:
-    Description: Mongo URL.
-    Default: mongodb://mongodb.ovcdemo.ovc/dbname
+    ConstraintDescription: Specify the URL for the OVC POS.
+  SERVERPATH:
+    Description: CSL Server
+    Default: http://csldev3.epic.discounttire.com:3000
     Type: String
-    ConstraintDescription: Specify the URL for MongoDB.
-  DASHPATH:
-    Description: OVC Dashboard URL.
-    Default: http://devmysql.ovcdemo.com/ovcdashboard/
+    ConstraintDescription: Specify the URL for the CSL Server.
+  dbPath:
+    Description: MongoDB URL.
+    Default:  mongodb://10.200.20.20:27000/csl
     Type: String
     ConstraintDescription: Specify the URL for the OVC Dashboard.
-  MAXPROMOID:
-    Description: Max Promo ID Length.
-    Default: 999999
-    Type: Number
-    ConstraintDescription: Maximum length of the Promo IDs expressed with 9s.
-  PROMOPATH:
-    Description: Promo Engine URL.
-    Default: http://dev-promo.ovcdemo.com:3000/promotions/
+  SWAGGERACCESS:
+    Description: Swagger Configuration
+    Default: on
     Type: String
-    ConstraintDescription: Specify the URL for the Promotion Engine.
+    ConstraintDescription: Defines whether Swagger is available or not.
+  authpath:
+    Description: Authorization URL.
+    Default: http://ovcdev3.epic.discounttire.com:8080/json/login/login
+    Type: String
+    ConstraintDescription: Specify the URL for the Auth server.
+  POSCSLTRANPATH:
+    Description: CSL Transaction Creation URL.
+    Default: http://ovcdev3.epic.discounttire.com:8080/json/transaction/createCSLTransaction
+    Type: String
+    ConstraintDescription: Specify the URL for the CSL Transaction Creation.
+  POSRETURNPATH:
+    Description: CSL Return Transaction URL.
+    Default: http://ovcdev3.epic.discounttire.com:8080/json/transaction/return
+    Type: String
+    ConstraintDescription: Specify the URL for the CSL Return Transaction.
+  CLOSECSLPATH:
+    Description: Close CSL URL.
+    Default: http://ovcdev3.epic.discounttire.com:8080/json/transaction/closeCSL
+    Type: String
+    ConstraintDescription: Specify the URL for the CSL Close.
 
 
 Resources:
-  promoserver:
+  cslserver:
     Type: "AWS::ElasticBeanstalk::Environment"
     Properties:
-      ApplicationName: promo-server
-      Description: Promotion Engine
-      EnvironmentName: !Sub '${ProjectName}-${EnvironmentType}'
+      ApplicationName: DT-CSL
+      Description: CSL Server
+      EnvironmentName: !Sub '${ProjectName}-${EnvironmentType}-csl'
       OptionSettings:
 
         # VPC Network Settings
         - Namespace: aws:ec2:vpc
           OptionName: Subnets
-          Value: subnet-9f8a92b7
+          Value: subnet-59b40a74
         - Namespace: aws:ec2:vpc
           OptionName: VPCId
-          Value: vpc-e8932b8d
+          Value: vpc-82ba47e4
         - Namespace: aws:ec2:vpc
           OptionName: ELBSubnets
-          Value: subnet-9f8a92b7
+          Value: subnet-b3b40a9e
         - Namespace: aws:ec2:vpc
           OptionName: AssociatePublicIpAddress
           Value: true
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value:  sg-5a1d2427
 
           # Environment Settings
         - Namespace: aws:elasticbeanstalk:environment
@@ -122,9 +132,6 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
           Value: aws-elasticbeanstalk-ec2-role
-        - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: SecurityGroups
-          Value:  sg-66ecf301
 
           # ELB Settings
         - Namespace: aws:elasticbeanstalk:application
@@ -174,25 +181,34 @@ Resources:
 
           # Environment Variables
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: MONGO_URL
-          Value: !Ref MONGOURL
+          OptionName: POS_URL
+          Value: !Ref POSURL
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: DASH_PATH
-          Value: !Ref DASHPATH
+          OptionName: SERVER_PATH
+          Value: !Ref SERVERPATH
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: MAX_PROMO_ID
-          Value: !Ref MAXPROMOID
+          OptionName: dbPath
+          Value: !Ref dbPath
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: OVC_URL
-          Value: !Ref OVCURL
+          OptionName: SWAGGER_ACCESS
+          Value: !Ref SWAGGERACCESS
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: PROMO_PATH
-          Value: !Ref PROMOPATH
+          OptionName: auth_path
+          Value: !Ref authpath
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POS_CSL_TRAN_PATH
+          Value: !Ref POSCSLTRANPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POS_RETURN_PATH
+          Value: !Ref POSRETURNPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: CLOSE_CSL_PATH
+          Value: !Ref CLOSECSLPATH
 
       SolutionStackName: "64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)"
       Tags:
         - Key: "role"
-          Value: "promoengine"
+          Value: "csl"
         - Key: "environment"
           Value: !Ref EnvironmentType
         - Key: "project"
