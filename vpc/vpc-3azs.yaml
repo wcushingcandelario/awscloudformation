@@ -43,6 +43,9 @@ Parameters:
       - nonproduction
       - production
     ConstraintDescription: 'Must be a string of either "nonproduction" or "production" to indicate the resources lifecycle state.'
+Conditions:
+  IsProduction: !Equals [ !Ref LiveIdentifier, production ]
+
 Resources:
   VPC:
     Type: 'AWS::EC2::VPC'
@@ -464,6 +467,16 @@ Resources:
       RouteTableId: !Ref RouteTablePrivateC
       DestinationCidrBlock: '0.0.0.0/0'
       NatGatewayId: !Ref NatGatewayC
+
+  RDSSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: 'RDS Subnet group'
+      SubnetIds:
+      - !Ref SubnetAPrivateDB
+      - !Ref SubnetBPrivateDB
+      - !Ref SubnetCPrivateDB
+
 Outputs:
   AZs:
     Description: 'AZs'
@@ -565,7 +578,7 @@ Outputs:
     Value: !Ref SubnetBPrivate
     Export:
       Name: !Sub '${AWS::StackName}-SubnetBPrivate'
-  SubnetBPrivate:
+  SubnetBPrivateDB:
     Description: 'Subnet B private DB.'
     Value: !Ref SubnetBPrivateDB
     Export:
@@ -585,3 +598,8 @@ Outputs:
     Value: !Ref SubnetCPrivateDB
     Export:
       Name: !Sub '${AWS::StackName}-SubnetCPrivateDB'
+  RDSSubnetGroup:
+    Description: 'RDS Subnet group'
+    Value: !Ref RDSSubnetGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-RDSSubnetGroup'
