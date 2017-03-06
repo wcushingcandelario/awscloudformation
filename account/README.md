@@ -14,3 +14,18 @@ When creating a new AWS account, the following Service Limits should be increase
 
 
 http://www.tablesgenerator.com/markdown_tables#
+
+## Account Setup
+The following should be setup for each new account.
+* Password policy
+* Force MFA using `forced_mfa_iam.json`
+* Disable un-used regions
+* MFA on root account
+* Customize IAM user login URL (IAM -> Dashboard -> Customize URL)
+* Setup consolidated billing
+* Register a domain (if needed, automatically creates public hosted zone)
+* Private Hosted Zone gets created AFTER a VPC is present
+
+Steps Needed for Full Environment:
+1. Setup email for the domain that was registered.  This is needed in order to provision a certificate.
+1. Create a key pair

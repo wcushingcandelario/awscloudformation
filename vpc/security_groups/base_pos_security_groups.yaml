@@ -19,7 +19,7 @@ Resources:
 
 # POS Load Balancer
 
-  cfLoadBalancerSecurityGroup:
+  cfPOSLoadBalancerSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'POS Jetty Server load balancer security group'
@@ -27,7 +27,7 @@ Resources:
         'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
       Tags:
       - Key: Name
-        Value: cfLoadBalancerSecurityGroup
+        Value:  cfPOSLoadBalancerSecurityGroup
       - Key: Project
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
@@ -63,22 +63,39 @@ Resources:
         FromPort: 443
         ToPort: 443
         IpProtocol: tcp
-        SourceSecurityGroupId: !Ref cfLoadBalancerSecurityGroup
+        SourceSecurityGroupId: !Ref  cfPOSLoadBalancerSecurityGroup
       -
         FromPort: 80
         ToPort: 80
         IpProtocol: tcp
-        SourceSecurityGroupId: !Ref cfLoadBalancerSecurityGroup
+        SourceSecurityGroupId: !Ref  cfPOSLoadBalancerSecurityGroup
       -
         FromPort: 8080
         ToPort: 8080
         IpProtocol: tcp
-        SourceSecurityGroupId: !Ref cfLoadBalancerSecurityGroup
+        SourceSecurityGroupId: !Ref  cfPOSLoadBalancerSecurityGroup
       -
         FromPort: 22
         ToPort: 22
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
+
+# Promotion Engine
+  cfPromotionEngineSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Promotion Engine security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value: cfPromotionEngineSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
 
 # MongoDB Cloud Manager
 
@@ -103,6 +120,11 @@ Resources:
         ToPort: 27020
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfPOSServerSecurityGroup
+      -
+        FromPort: 27000
+        ToPort: 27020
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfPromotionEngineSecurityGroup
       -
         FromPort: 22
         ToPort: 22
@@ -157,3 +179,35 @@ Resources:
         ToPort: 22
         IpProtocol: tcp
         CidrIp: '192.168.0.0/16'
+
+Outputs:
+  POSLoadBalancerSecurityGroup:
+    Description: POS Load Balancer Security Group
+    Value: !Ref cfPOSLoadBalancerSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-POSLoadBalancerSecurityGroup'
+  POSServerSecurityGroup:
+    Description: POS Server Security Group
+    Value: !Ref cfPOSServerSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-POSServerSecurityGroup'
+  MongoDBCloudManagerSecurityGroup:
+    Description: MongoDB Cloud Manager Security Group
+    Value: !Ref cfMongoDBCloudManagerSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-MongoDBCloudManagerSecurityGroup'
+  RDSSecurityGroup:
+    Description: RDS Security Group
+    Value: !Ref cfRDSSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-RDSSecurityGroup'
+  PromotionEngineSecurityGroup:
+    Description: Promotion Engine Instance Security Group
+    Value: !Ref cfPromotionEngineSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-PromotionEngineSecurityGroup'
+  BastionHostSecurityGroup:
+    Description: Bastion Host Security Group
+    Value: !Ref cfBastionHostSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-BastionHostSecurityGroup'

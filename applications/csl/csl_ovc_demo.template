@@ -134,9 +134,9 @@ Resources:
           Value: aws-elasticbeanstalk-ec2-role
 
           # ELB Settings
-        - Namespace: aws:elasticbeanstalk:application
-          OptionName: Application Healthcheck URL
-          Value: HTTP:3000/healthcheck
+        # - Namespace: aws:elasticbeanstalk:application
+        #   OptionName: Application Healthcheck URL
+        #   Value: HTTP:3000/healthcheck
         - Namespace: aws:elb:listener:3000
           OptionName: ListenerProtocol
           Value: HTTP

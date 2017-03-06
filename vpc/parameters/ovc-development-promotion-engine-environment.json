@@ -1,31 +1,11 @@
 [
     {
-         "ParameterKey": "ClassA",
-         "ParameterValue": "10"
-     },
-    {
-         "ParameterKey": "ClassB",
-         "ParameterValue": "20"
-     },
-    {
          "ParameterKey": "ProjectName",
          "ParameterValue": "testtest"
      },
     {
-         "ParameterKey": "LiveIdentifier",
-         "ParameterValue": "nonproduction"
-     },
-    {
          "ParameterKey": "ParentVPCStack",
          "ParameterValue": "nonprodtest"
-     },
-    {
-         "ParameterKey": "HostedZoneId",
-         "ParameterValue": "Z1902IRRRN8NRW"
-     },
-    {
-         "ParameterKey": "HostedZoneDomainName",
-         "ParameterValue": "test.com"
      },
     {
          "ParameterKey": "OVCURL",

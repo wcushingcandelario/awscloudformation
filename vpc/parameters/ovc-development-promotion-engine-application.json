@@ -1,0 +1,14 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonprodtest"
+     },
+     {
+          "ParameterKey": "HostedZoneId",
+          "ParameterValue": "Z1902IRRRN8NRW"
+      },
+     {
+          "ParameterKey": "HostedZoneDomainName",
+          "ParameterValue": "test.com"
+      }
+]

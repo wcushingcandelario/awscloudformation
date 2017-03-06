@@ -1,0 +1,112 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  cfElasticBeanstalkSerivceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth'
+        - 'arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - elasticbeanstalk.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+  RolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: aws-elasticbeanstalk-service-role
+      PolicyDocument:
+        '{
+        "Version": "2012-10-17",
+        "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:DescribeInstanceHealth",
+                "ec2:DescribeInstances",
+                "ec2:DescribeInstanceStatus",
+                "ec2:GetConsoleOutput",
+                "ec2:AssociateAddress",
+                "ec2:DescribeAddresses",
+                "ec2:DescribeSecurityGroups",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl",
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeAutoScalingInstances",
+                "autoscaling:DescribeScalingActivities",
+                "autoscaling:DescribeNotificationConfigurations",
+                "s3:GetObject",
+                "ecs:StartTask",
+                "ecs:StopTask",
+                "ecs:RegisterContainerInstance",
+                "ecs:DeregisterContainerInstance",
+                "ecs:DescribeContainerInstances",
+                "ecs:DiscoverPollEndpoint",
+                "ecs:Submit*",
+                "ecs:Poll"
+            ],
+            "Resource": [
+                "*"
+            ]
+            }
+          ]
+          }'
+
+      Roles:
+      - Ref: cfElasticBeanstalkSerivceRole
+  ElasticBeanstalkSerivceRoleInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: cfElasticBeanstalkSerivceRole
+
+  cfElasticBeanstalkInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker'
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+  ElasticBeanstalkInstanceRoleInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: cfElasticBeanstalkInstanceRole
+
+Outputs:
+  ElasticBeanstalkSerivceRole:
+    Description: Service Role for Elastic Beanstalk Creation and Managment
+    Value: !Ref cfElasticBeanstalkSerivceRole
+    Export:
+      Name: ElasticBeanstalkSerivceRole
+  ElasticBeanstalkSerivceRoleInstanceProfile:
+    Description: Instance Profile attached to the Service Role for Elastic Beanstalk Creation and Managment
+    Value: !Ref ElasticBeanstalkSerivceRoleInstanceProfile
+    Export:
+      Name: ElasticBeanstalkSerivceRoleInstanceProfile
+  ElasticBeanstalkInstanceRole:
+    Description: Instance Role for Elastic Beanstalk EC2 Instances
+    Value: !Ref cfElasticBeanstalkInstanceRole
+    Export:
+      Name: ElasticBeanstalkInstanceRole
+  ElasticBeanstalkInstanceRoleInstanceProfile:
+    Description: Instance Profile attached to the Instance Role for Elastic Beanstalk EC2 Instances
+    Value: !Ref ElasticBeanstalkInstanceRoleInstanceProfile
+    Export:
+      Name: ElasticBeanstalkInstanceRoleInstanceProfile

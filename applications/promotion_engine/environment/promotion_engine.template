@@ -1,0 +1,180 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Development promotion environment template.'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Environment Setup'
+      Parameters:
+      - EnvironmentType
+      - ProjectName
+      - InstanceType
+      - SSHKeyName
+    - Label:
+        default: 'Environment Configuration'
+      Parameters:
+      - OVCURL
+      - MONGOURL
+      - DASHPATH
+      - MAXPROMOID
+      - PROMOPATH
+    ParameterLabels:
+      EnvironmentType:
+        default: "Specify the type of environment this instance will be used in."
+      ProjectName:
+        default: "What project is this environment related to?"
+      OVCURL:
+        default: "Specify the URL for the OVC server. eg: http://devmysql.ovcdemo.com:8080"
+      MONGOURL:
+        default: "Specify the URL for the MongoDB connection.  eg: mongodb://mongodb.ovcdemo.ovc/dbname"
+      DASHPATH:
+        default: "Specify the URL for the OVC Dashboard. eg: http://devmysql.ovcdemo.com/ovcdashboard/"
+      MAXPROMOID:
+        default: "Specify the maximum length of the Promo IDs expressed with 9s. eg: 999999"
+      PROMOPATH:
+        default: "Specify the URL for the OVC Promotion Engine. eg: http://dev-promo.ovcdemo.com:3000/promotions/"
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  EnvironmentType:
+    Description: Environment Type.
+    Default: dev
+    Type: String
+    AllowedValues:
+      - dev
+      - qa
+      - test
+      - rc
+      - preproduction
+      - production
+    ConstraintDescription: Specify the type of environment this instance will be used in.
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    Default: t2.small
+    ConstraintDescription: 'The type of instance that the Promotion Engine will run on eg. t2.small, m3.medium, etc'
+  SSHKeyName:
+    Description: SSH Key Name.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
+  ProjectName:
+    Description: Project ID.
+    Type: String
+    ConstraintDescription: Specify the project to user for billing.
+  OVCURL:
+    Description: OVC Server URL.
+    Default: http://sample.ovcdemo.com:8080
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  MONGOURL:
+    Description: Mongo URL.
+    Default: mongodb://sample.ovcdemo.ovc/dbname
+    Type: String
+    ConstraintDescription: Specify the URL for MongoDB.
+  DASHPATH:
+    Description: OVC Dashboard URL.
+    Default: http://sample.ovcdemo.com/ovcdashboard/
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC Dashboard.
+  MAXPROMOID:
+    Description: Max Promo ID Length.
+    Default: 999999
+    Type: Number
+    ConstraintDescription: Maximum length of the Promo IDs expressed with 9s.
+  PROMOPATHPROTOCOL:
+    Description: Promo Engine Protocol.
+    Default: http
+    Type: String
+    AllowedValues:
+      - http
+      - https
+    ConstraintDescription: Specify the Protocol for the Promotion Engine.
+  PROMOPATHHOSTNAME:
+    Description: Promo Engine Hostname.
+    Type: String
+    ConstraintDescription: 'Specify the Hostname for the Promotion Engine. eg. http://HOSTNAME.domain.com'
+
+
+Resources:
+  PromotionServerEnvironment:
+    Type: "AWS::ElasticBeanstalk::Environment"
+    Properties:
+      ApplicationName:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineApplication'
+      Description: Promotion Engine
+      EnvironmentName: !Sub '${EnvironmentType}-pe'
+      TemplateName:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineConfigurationTemplate'
+      OptionSettings:
+
+        # Environment Settings
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value:
+            'Fn::ImportValue': ElasticBeanstalkSerivceRole
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value:
+            'Fn::ImportValue': ElasticBeanstalkInstanceRoleInstanceProfile
+
+          # ELB Settings
+        - Namespace: aws:elb:loadbalancer
+          OptionName: CrossZone
+          Value: true
+
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBScheme
+          Value: internal
+
+          # Scaling Settings
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: !Ref InstanceType
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref SSHKeyName
+
+          # Environment Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: MONGO_URL
+          Value: !Ref MONGOURL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DASH_PATH
+          Value: !Ref DASHPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: MAX_PROMO_ID
+          Value: !Ref MAXPROMOID
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVC_URL
+          Value: !Ref OVCURL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: PROMO_PATH
+          Value: !Join ['', [!Ref 'PROMOPATHPROTOCOL', '://', !Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneDomainName']]
+
+  # DNSRecord:
+  #   Type: AWS::Route53::RecordSet
+  #   DependsOn: PromotionServerEnvironment
+  #   Properties:
+  #     HostedZoneId:
+  #       'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneId'
+  #     # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
+  #     Name: !Join ['', [!Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneDomainName']]
+  #     Type: CNAME
+  #     TTL: '60'
+  #     ResourceRecords:
+  #     - !GetAtt PromotionServerEnvironment.EndpointURL
+
+      Tags:
+        - Key: "role"
+          Value: "promoengine"
+        - Key: "environment"
+          Value: !Ref EnvironmentType
+        - Key: "project"
+          Value: !Ref ProjectName
