@@ -89,6 +89,19 @@ Resources:
       Roles:
       - Ref: cfElasticBeanstalkInstanceRole
 
+  cfRDSEnhancedMonitoringRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns:
+      - 'arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole'
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'rds.amazonaws.com'
+          Action: 'sts:AssumeRole'
+
 Outputs:
   ElasticBeanstalkSerivceRole:
     Description: Service Role for Elastic Beanstalk Creation and Managment
@@ -110,3 +123,8 @@ Outputs:
     Value: !Ref ElasticBeanstalkInstanceRoleInstanceProfile
     Export:
       Name: ElasticBeanstalkInstanceRoleInstanceProfile
+  RDSEnhancedMonitoringRole:
+    Description: Instance Profile attached to the Instance Role for Elastic Beanstalk EC2 Instances
+    Value: !Ref cfRDSEnhancedMonitoringRole
+    Export:
+      Name: RDSEnhancedMonitoringRole

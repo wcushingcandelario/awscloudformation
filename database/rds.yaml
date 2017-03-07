@@ -1,0 +1,154 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  RDS MySQL instance with Parameter Group
+
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Database Configuration'
+      Parameters:
+      - MaxHeapTableSize
+      - TmpTableSize
+      - DBAllocatedStorage
+      - DBClass
+      - MultiAZDatabase
+    - Label:
+        default: 'Database Credentials'
+      Parameters:
+      - DBSchemaName
+      - DBUser
+      - DBPassword
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  DBClass:
+    Description: Instance Type.
+    Type: String
+    Default: 'db.m3.medium'
+    AllowedPattern: 'db.*'
+    ConstraintDescription: 'The type of instance that RDS will run on. (Recommended is a large for PreProd and Prod) Must begin with db. eg. db.t2.small, db.m4.medium, etc'
+  MaxHeapTableSize:
+    Description: 'max_heap_table_size value.'
+    Type: Number
+    Default: 134217728
+    ConstraintDescription: 'Value for the max_heap_table_size variable for the RDS database.'
+  TmpTableSize:
+    Description: 'tmp_table_size value.'
+    Type: Number
+    Default: 134217728
+    ConstraintDescription: 'Value for the tmp_table_size variable for the RDS database.'
+  MultiAZDatabase:
+    Description: 'Boolean Indicator for Multi-AZ.'
+    Type: String
+    AllowedPattern: '([tT]rue|[fF]alse)'
+    Default: true
+    ConstraintDescription: 'Boolean indicating if the DB will be Multiple Availability Zoned. Must be all lower case or Camel case.'
+  DBSchemaName:
+    Description: 'Database Name.'
+    Type: String
+    Default: dbname
+    ConstraintDescription: 'Database name.'
+  DBUser:
+    Description: 'Master DB Username.'
+    Type: String
+    Default: root
+    ConstraintDescription: 'Master DB Username.'
+  DBAllocatedStorage:
+    Description: 'Allocated Storage in GBs.'
+    Type: Number
+    Default: 10
+    ConstraintDescription: 'Allocated Storage in GBs.'
+  DBPassword:
+    Description: 'Master DB Password.'
+    Type: String
+    MinLength: 8
+    NoEcho: true
+    ConstraintDescription: 'Master DB Password.'
+
+Resources:
+  RDSParameterGroup:
+    Type: "AWS::RDS::DBParameterGroup"
+    Properties:
+      Description: RDS OVC Parameter Group
+      Family: MySQL5.6
+      Parameters:
+        lower_case_table_names: 1
+        max_heap_table_size:
+          Ref: MaxHeapTableSize
+        tmp_table_size:
+          Ref: TmpTableSize
+      Tags:
+        - Key: Project
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        - Key: LiveIdentifier
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+
+  DatabaseSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'RDS security group'
+      Tags:
+      - Key: Name
+        Value: cfRDSSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 3306
+        ToPort: 3306
+        SourceSecurityGroupId:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-POSServerSecurityGroup'
+
+  DBInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      AllocatedStorage: !Ref DBAllocatedStorage
+      BackupRetentionPeriod: 0
+      DBInstanceClass: !Ref DBClass
+      # DBName: !Ref DBSchemaName
+      Engine: MySQL
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Ref DBPassword
+      VPCSecurityGroups:
+      - !Ref DatabaseSecurityGroup
+      DBSubnetGroupName:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-RDSSubnetGroup'
+      MultiAZ: !Ref MultiAZDatabase
+      StorageEncrypted: true
+      DeletionPolicy: Snapshot
+      StorageType: gp2
+
+Outputs:
+  RDSParameterGroup:
+    Description: RDS Parameter Group
+    Value: !Ref RDSParameterGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-${DBSchemaName}-RDSParameterGroup'
+  RDSDatabaseSecurityGroup:
+    Description: RDS Security Group
+    Value: !Ref DatabaseSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-${DBSchemaName}-DatabaseSecurityGroup'
+  RDSDBInstance:
+    Description: RDS DB Instance
+    Value: !Ref DBInstance
+    Export:
+      Name: !Sub '${ParentVPCStack}-${DBSchemaName}-DBInstance'

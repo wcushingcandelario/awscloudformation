@@ -1,0 +1,10 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonprodtest"
+     },
+    {
+         "ParameterKey": "DBPassword",
+         "ParameterValue": "rootroot"
+     }
+]

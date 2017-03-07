@@ -136,26 +136,6 @@ Resources:
         IpProtocol: tcp
         CidrIp: '4.35.16.128/25'
 
-# RDS Server
-
-  cfRDSSecurityGroup:
-    Type: 'AWS::RDS::DBSecurityGroup'
-    Properties:
-      GroupDescription: 'RDS security group'
-      Tags:
-      - Key: Name
-        Value: cfPOSServerSecurityGroup
-      - Key: Project
-        Value:
-          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
-      - Key: LiveIdentifier
-        Value:
-          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
-      EC2VpcId:
-        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
-      DBSecurityGroupIngress:
-      - EC2SecurityGroupId: !Ref cfPOSServerSecurityGroup
-
 # Bastion Host
 
   cfBastionHostSecurityGroup:
@@ -196,11 +176,6 @@ Outputs:
     Value: !Ref cfMongoDBCloudManagerSecurityGroup
     Export:
       Name: !Sub '${ParentVPCStack}-MongoDBCloudManagerSecurityGroup'
-  RDSSecurityGroup:
-    Description: RDS Security Group
-    Value: !Ref cfRDSSecurityGroup
-    Export:
-      Name: !Sub '${ParentVPCStack}-RDSSecurityGroup'
   PromotionEngineSecurityGroup:
     Description: Promotion Engine Instance Security Group
     Value: !Ref cfPromotionEngineSecurityGroup

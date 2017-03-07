@@ -1,6 +1,6 @@
 # Cloudformation
 ## AWS Account Level Templates
-The templates in this directory are intented to be run _*once*_ per AWS account.  They will provision the account with shared resources such as `AWS Config` and `CloudTrail` along with the necessary supported functions.
+The templates in this directory are intented to be run __*once*__ per AWS account.  They will provision the account with shared resources such as `AWS Config` and `CloudTrail` along with the necessary supported functions.
 
 ## Recommended Service Limit Increases
 When creating a new AWS account, the following Service Limits should be increased through the AWS Support Dashboard:
@@ -16,9 +16,9 @@ When creating a new AWS account, the following Service Limits should be increase
 http://www.tablesgenerator.com/markdown_tables#
 
 ## Account Setup
-The following should be setup for each new account.
+The following should be setup __*manually*__ for each new AWS account.
 * Password policy
-* Force MFA using `forced_mfa_iam.json`
+* Force MFA using `forced_mfa_iam.json` TODO: move forced_mfa_iam.json into iam CloudFormation
 * Disable un-used regions
 * MFA on root account
 * Customize IAM user login URL (IAM -> Dashboard -> Customize URL)
