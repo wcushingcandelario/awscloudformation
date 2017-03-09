@@ -25,7 +25,29 @@ The following should be setup __*manually*__ for each new AWS account.
 * Setup consolidated billing
 * Register a domain (if needed, automatically creates public hosted zone)
 * Private Hosted Zone gets created AFTER a VPC is present
+* Setup MongoDB Cloud Manager
+** Including Cross Account Role for access
 
 Steps Needed for Full Environment:
 1. Setup email for the domain that was registered.  This is needed in order to provision a certificate.
 1. Create a key pair
+
+### Steps to allow Elastic Beanstalk access to Docker Hub credentials
+Add the following S3 bucket polciy to the `OVC Demo` account's `ovc-github-access` S3 bucket.  If a policy exists, it will need to be updated to take into account the newly created AWS account you are trying to provide access to.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [{
+            "Sid": "AllowXXXXXAccess",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": ["arn:aws:iam::99999999999:root"]
+            },
+            "Action": ["s3:GetObject"],
+            "Resource": ["arn:aws:s3:::ovc-github-access/dockercfg"]
+        }
+
+    ]
+}
+```

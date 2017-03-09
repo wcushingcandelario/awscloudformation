@@ -22,7 +22,7 @@ Metadata:
     - Label:
         default: 'Database Credentials'
       Parameters:
-      - DBSchemaName
+      - DBInstanceName
       - DBUser
       - DBPassword
 
@@ -30,10 +30,16 @@ Parameters:
   ParentVPCStack:
     Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
     Type: String
+  HostedZoneResourceId:
+    Description: 'Hosted Zone Id for the Route53 PRIVATE domain to create the DBs DNS entry.'
+    Type: String
+  HostedZoneName:
+    Description: 'Hosted Zone Name for the Route53 PRIVATE domain to create the DBs DNS entry.'
+    Type: String
   DBClass:
     Description: Instance Type.
     Type: String
-    Default: 'db.m3.medium'
+    Default: 'db.m4.large'
     AllowedPattern: 'db.*'
     ConstraintDescription: 'The type of instance that RDS will run on. (Recommended is a large for PreProd and Prod) Must begin with db. eg. db.t2.small, db.m4.medium, etc'
   MaxHeapTableSize:
@@ -46,26 +52,26 @@ Parameters:
     Type: Number
     Default: 134217728
     ConstraintDescription: 'Value for the tmp_table_size variable for the RDS database.'
+  BackupRetentionPeriod:
+    Description: 'DB Backup Retention Period.'
+    Type: Number
+    ConstraintDescription: 'Retention period for RDS database backups.'
   MultiAZDatabase:
     Description: 'Boolean Indicator for Multi-AZ.'
     Type: String
     AllowedPattern: '([tT]rue|[fF]alse)'
-    Default: true
     ConstraintDescription: 'Boolean indicating if the DB will be Multiple Availability Zoned. Must be all lower case or Camel case.'
-  DBSchemaName:
+  DBInstanceName:
     Description: 'Database Name.'
     Type: String
-    Default: dbname
     ConstraintDescription: 'Database name.'
   DBUser:
     Description: 'Master DB Username.'
     Type: String
-    Default: root
     ConstraintDescription: 'Master DB Username.'
   DBAllocatedStorage:
     Description: 'Allocated Storage in GBs.'
     Type: Number
-    Default: 10
     ConstraintDescription: 'Allocated Storage in GBs.'
   DBPassword:
     Description: 'Master DB Password.'
@@ -121,9 +127,9 @@ Resources:
     Type: 'AWS::RDS::DBInstance'
     Properties:
       AllocatedStorage: !Ref DBAllocatedStorage
-      BackupRetentionPeriod: 0
+      BackupRetentionPeriod: !Ref BackupRetentionPeriod
       DBInstanceClass: !Ref DBClass
-      # DBName: !Ref DBSchemaName
+      # DBName: !Ref DBInstanceName
       Engine: MySQL
       MasterUsername: !Ref DBUser
       MasterUserPassword: !Ref DBPassword
@@ -133,22 +139,34 @@ Resources:
         'Fn::ImportValue': !Sub '${ParentVPCStack}-RDSSubnetGroup'
       MultiAZ: !Ref MultiAZDatabase
       StorageEncrypted: true
-      DeletionPolicy: Snapshot
       StorageType: gp2
+    DeletionPolicy: Snapshot
+
+  DBDNSEntry:
+    Type: AWS::Route53::RecordSet
+    DependsOn: DBInstance
+    Properties:
+      HostedZoneId: !Ref 'HostedZoneResourceId'
+      Comment: !Sub '${ParentVPCStack}-${DBInstanceName}-DBInstance'
+      Name: !Join ['', ['mysql-', !Sub '${DBInstanceName}', ., !Ref 'HostedZoneName', .]]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt DBInstance.Endpoint.Address
 
 Outputs:
   RDSParameterGroup:
     Description: RDS Parameter Group
     Value: !Ref RDSParameterGroup
     Export:
-      Name: !Sub '${ParentVPCStack}-${DBSchemaName}-RDSParameterGroup'
+      Name: !Sub '${ParentVPCStack}-${DBInstanceName}-RDSParameterGroup'
   RDSDatabaseSecurityGroup:
     Description: RDS Security Group
     Value: !Ref DatabaseSecurityGroup
     Export:
-      Name: !Sub '${ParentVPCStack}-${DBSchemaName}-DatabaseSecurityGroup'
+      Name: !Sub '${ParentVPCStack}-${DBInstanceName}-DatabaseSecurityGroup'
   RDSDBInstance:
     Description: RDS DB Instance
     Value: !Ref DBInstance
     Export:
-      Name: !Sub '${ParentVPCStack}-${DBSchemaName}-DBInstance'
+      Name: !Sub '${ParentVPCStack}-${DBInstanceName}-DBInstance'

@@ -12,7 +12,7 @@ Parameters:
   DeliveryFrequency:
     Description: 'The frequency with which AWS Config delivers configuration snapshots'
     Type: String
-    Default: Six_Hours
+    Default: Three_Hours
     AllowedValues:
     - One_Hour
     - Three_Hours

@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonprodtest"
+     },
+    {
+         "ParameterKey": "SSHKeyPair",
+         "ParameterValue": "ovc-development-ops"
+     },
+    {
+         "ParameterKey": "InstanceType",
+         "ParameterValue": "t2.small"
+     },
+    {
+         "ParameterKey": "AMIID",
+         "ParameterValue": "ami-eec463f8"
+     }
+]

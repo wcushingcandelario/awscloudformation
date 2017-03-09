@@ -80,7 +80,7 @@ Resources:
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
 
-# Promotion Engine
+# Promotion Engine - Empty group to allow MongoDB Security Group Ingress
   cfPromotionEngineSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -96,6 +96,7 @@ Resources:
       - Key: LiveIdentifier
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
 
 # MongoDB Cloud Manager
 
@@ -159,6 +160,11 @@ Resources:
         ToPort: 22
         IpProtocol: tcp
         CidrIp: '192.168.0.0/16'
+      -
+        FromPort: 22
+        ToPort: 22
+        IpProtocol: tcp
+        CidrIp: '38.122.253.250/32'
 
 Outputs:
   POSLoadBalancerSecurityGroup:

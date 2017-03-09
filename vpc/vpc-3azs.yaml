@@ -253,7 +253,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Private C
+        Value: Private Route C
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier

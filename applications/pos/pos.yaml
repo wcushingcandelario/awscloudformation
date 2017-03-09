@@ -1,0 +1,172 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Launch Configuration Details'
+      Parameters:
+      - SSHKeyPair
+      - POSServerIAMUserSSHAccess
+      - POSServerIAMUserSSHAccess
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  SSHKeyPair:
+    Description: 'Name of the SSH Key in AWS to use.'
+    Type: AWS::EC2::KeyPair::KeyName
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    ConstraintDescription: 'The type of instance that the POS Server will run on eg. t2.small, m4.medium, etc'
+  AMIID:
+    Description: AMI ID to attach.
+    Type: AWS::EC2::Image::Id
+    ConstraintDescription: 'The AMI ID that will be attached to the Launch Configuration.'
+  POSServerIAMUserSSHAccess:
+    Description: 'Synchronize public keys of IAM users to enable personalized SSH access (Doc: https://cloudonaut.io/manage-aws-ec2-ssh-access-with-iam/).'
+    Type: String
+    Default: false
+    AllowedValues:
+    - true
+    - false
+Conditions:
+  HasIAMUserSSHAccess: !Equals [!Ref POSServerIAMUserSSHAccess, 'true']
+
+Resources:
+
+  POSServerInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref POSServerIAMRole
+  POSServerIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: logs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'logs:CreateLogGroup'
+            - 'logs:CreateLogStream'
+            - 'logs:PutLogEvents'
+            - 'logs:DescribeLogStreams'
+            Resource:
+            - 'arn:aws:logs:*:*:*'
+  POSServerIAMPolicySSHAccess:
+    Type: 'AWS::IAM::Policy'
+    Condition: HasIAMUserSSHAccess
+    Properties:
+      Roles:
+      - !Ref POSServerIAMRole
+      PolicyName: iam
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - 'iam:ListUsers'
+          Resource:
+          - '*'
+        - Effect: Allow
+          Action:
+          - 'iam:ListSSHPublicKeys'
+          - 'iam:GetSSHPublicKey'
+          Resource:
+          - !Sub 'arn:aws:iam::${AWS::AccountId}:user/*'
+
+  POSServerLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AMIID
+      SecurityGroups:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-POSServerSecurityGroup'
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref POSServerInstanceProfile
+      KeyName: !Ref SSHKeyPair
+      # AssociatePublicIpAddress: true
+
+    Metadata:
+      'AWS::CloudFormation::Init':
+        configSets:
+          default:
+            - !If [HasIAMUserSSHAccess, [ssh-access], []]
+          ssh-access:
+            files:
+              '/opt/authorized_keys_command.sh':
+                content: |
+                  #!/bin/bash -e
+                  if [ -z "$1" ]; then
+                    exit 1
+                  fi
+                  SaveUserName="$1"
+                  SaveUserName=${SaveUserName//"+"/".plus."}
+                  SaveUserName=${SaveUserName//"="/".equal."}
+                  SaveUserName=${SaveUserName//","/".comma."}
+                  SaveUserName=${SaveUserName//"@"/".at."}
+                  aws iam list-ssh-public-keys --user-name "$SaveUserName" --query "SSHPublicKeys[?Status == 'Active'].[SSHPublicKeyId]" --output text | while read KeyId; do
+                    aws iam get-ssh-public-key --user-name "$SaveUserName" --ssh-public-key-id "$KeyId" --encoding SSH --query "SSHPublicKey.SSHPublicKeyBody" --output text
+                  done
+                mode: '000755'
+                owner: root
+                group: root
+              '/opt/import_users.sh':
+                content: |
+                  #!/bin/bash
+                  aws iam list-users --query "Users[].[UserName]" --output text | while read User; do
+                    SaveUserName="$User"
+                    SaveUserName=${SaveUserName//"+"/".plus."}
+                    SaveUserName=${SaveUserName//"="/".equal."}
+                    SaveUserName=${SaveUserName//","/".comma."}
+                    SaveUserName=${SaveUserName//"@"/".at."}
+                    if ! id -u "$SaveUserName" >/dev/null 2>&1; then
+                      #sudo will read each file in /etc/sudoers.d, skipping file names that end in ‘~’ or contain a ‘.’ character to avoid causing problems with package manager or editor temporary/backup files.
+                      SaveUserFileName=$(echo "$SaveUserName" | tr "." " ")
+                      /usr/sbin/useradd "$SaveUserName"
+                      echo "$SaveUserName ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$SaveUserFileName"
+                    fi
+                  done
+                mode: '000755'
+                owner: root
+                group: root
+              '/etc/cron.d/import_users':
+                content: |
+                  */10 * * * * root /opt/import_users.sh
+                mode: '000644'
+                owner: root
+                group: root
+            commands:
+              'a_configure_sshd_command':
+                command: 'sed -i "s:#AuthorizedKeysCommand none:AuthorizedKeysCommand /opt/authorized_keys_command.sh:g" /etc/ssh/sshd_config'
+              'b_configure_sshd_commanduser':
+                command: 'sed -i "s:#AuthorizedKeysCommandUser nobody:AuthorizedKeysCommandUser nobody:g" /etc/ssh/sshd_config'
+              'c_import_users':
+                command: './import_users.sh'
+                cwd: '/opt'
+            services:
+              sysvinit:
+                sshd:
+                  enabled: true
+                  ensureRunning: true
+                  commands:
+                  - 'a_configure_sshd_command'
+                  - 'b_configure_sshd_commanduser'

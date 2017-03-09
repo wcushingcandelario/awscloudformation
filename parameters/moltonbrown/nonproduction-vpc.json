@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ClassA",
+         "ParameterValue": "172"
+     },
+    {
+         "ParameterKey": "ClassB",
+         "ParameterValue": "16"
+     },
+    {
+         "ParameterKey": "ProjectName",
+         "ParameterValue": "moltonbrown"
+     },
+    {
+         "ParameterKey": "LiveIdentifier",
+         "ParameterValue": "nonproduction"
+     }
+]
