@@ -155,7 +155,7 @@ Resources:
       - Key: environment
         Value: !Ref EnvironmentType
         PropagateAtLaunch: true
-      - Key: project
+      - Key: Project
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
         PropagateAtLaunch: true
