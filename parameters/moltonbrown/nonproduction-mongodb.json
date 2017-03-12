@@ -1,0 +1,38 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+     {
+          "ParameterKey": "SSHKeyPair",
+          "ParameterValue": "moltonbrown-ops"
+      },
+     {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.micro"
+      },
+     {
+          "ParameterKey": "AMIID",
+          "ParameterValue": "ami-70edb016"
+      },
+     {
+          "ParameterKey": "MMSGroupId",
+          "ParameterValue": "58c1b9da97019975c361913b"
+      },
+     {
+          "ParameterKey": "MMSApiKey",
+          "ParameterValue": "9f5b4c2744dbaa3ebe0a2ef0ef5d2912"
+      },
+     {
+          "ParameterKey": "LogLevel",
+          "ParameterValue": "INFO"
+      },
+     {
+          "ParameterKey": "MaxLogFiles",
+          "ParameterValue": "5"
+      },
+     {
+          "ParameterKey": "MaxLogFileSize",
+          "ParameterValue": "268435456"
+      }
+]

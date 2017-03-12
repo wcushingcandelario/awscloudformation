@@ -1,0 +1,161 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  MongoDB Cloud Manager Instance
+
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Launch Configuration Details'
+      Parameters:
+      - SSHKeyPair
+      - InstanceType
+      - AMIID
+      - POSServerIAMUserSSHAccess
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  SSHKeyPair:
+    Description: 'Name of the SSH Key in AWS to use.'
+    Type: AWS::EC2::KeyPair::KeyName
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    ConstraintDescription: 'The type of instance that the POS Server will run on eg. t2.small, m4.medium, etc'
+  AMIID:
+    Description: AMI ID to attach.
+    Type: AWS::EC2::Image::Id
+    ConstraintDescription: 'The AMI ID that will be attached to the Launch Configuration.'
+  POSServerIAMUserSSHAccess:
+    Description: 'Synchronize public keys of IAM users to enable personalized SSH access (Doc: https://cloudonaut.io/manage-aws-ec2-ssh-access-with-iam/).'
+    Type: String
+    Default: false
+    AllowedValues:
+    - true
+    - false
+  MMSGroupId:
+    Description: Mongo Group ID.
+    Type: String
+    ConstraintDescription: 'The Mongo Group ID from the Mongo Account Group Settings.'
+  MMSApiKey:
+    Description: Mongo API Key.
+    Type: String
+    ConstraintDescription: 'The Mongo API Key from the Mongo Account Group Settings.'
+  LogLevel:
+    Description: Mongo Log Level.
+    Default: "WARN"
+    Type: String
+    ConstraintDescription: 'The Mongo logging level.'
+  MaxLogFiles:
+    Description: Log files to keep.
+    Type: String
+    ConstraintDescription: 'The number of Mongo log files to retain before purging.'
+  MaxLogFileSize:
+    Description: Mongo Log Level.
+    Type: String
+    ConstraintDescription: 'The maximum log file size.'
+  EnvironmentType:
+    Description: Environment Type.
+    Type: String
+    AllowedValues:
+      - dev
+      - qa
+      - uat
+      - sit
+      - preproduction
+      - production
+      - other
+    ConstraintDescription: 'The type of environment this Mongo is for ie: dev, qa, etc.'
+Conditions:
+  HasIAMUserSSHAccess: !Equals [!Ref POSServerIAMUserSSHAccess, 'true']
+
+Resources:
+
+  MongoDBCloudManagerLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AMIID
+      SecurityGroups:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-MongoDBCloudManagerSecurityGroup'
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref SSHKeyPair
+      UserData:
+        'Fn::Base64': !Sub |
+          #!/bin/bash -x
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource MongoDBCloudManagerLaunchConfiguration --configsets default --region ${AWS::Region}
+
+    Metadata:
+      'AWS::CloudFormation::Init':
+        configSets:
+          default:
+            - 1_mongo-cloud-automation-agent
+            - 2_config_setup
+            - 3_service_setup
+        1_mongo-cloud-automation-agent:
+          packages:
+            rpm:
+              mongodb-mms-automation-agent: 'https://cloud.mongodb.com/download/agent/automation/mongodb-mms-automation-agent-manager-latest.x86_64.rpm'
+          files:
+            '/etc/mongodb-mms/automation-agent.config':
+              content: !Sub |
+                mmsGroupId=${MMSGroupId}
+                mmsApiKey=${MMSApiKey}
+                mmsBaseUrl=https://api-agents.mongodb.com
+                logFile=$/var/log/mongodb-mms-automation/automation-agent.log
+                mmsConfigBackup=/var/lib/mongodb-mms-automation/mms-cluster-config-backup.json
+                logLevel=${LogLevel}
+                maxLogFiles=${MaxLogFiles}
+                maxLogFileSize=${MaxLogFileSize}
+              mode: '000640'
+              owner: mongod
+              group: mongod
+          services:
+            sysvinit:
+              mongodb-mms-automation-agent:
+                enabled: true
+                ensureRunning: false
+                files:
+                - '/etc/mongodb-mms/automation-agent.config'
+        2_config_setup:
+          commands:
+            'configure_data_dir':
+              command: 'touch /data; chown -R mongod:mongod /data'
+        3_service_setup:
+          services:
+            sysvinit:
+              mongodb-mms-automation-agent:
+                enabled: true
+                ensureRunning: true
+                files:
+                - '/etc/mongodb-mms/automation-agent.config'
+  AutoScalingGroup:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      LaunchConfigurationName: !Ref MongoDBCloudManagerLaunchConfiguration
+      MinSize: 1
+      MaxSize: 1
+      DesiredCapacity: 1
+      Cooldown: 90
+      HealthCheckGracePeriod: 300
+      VPCZoneIdentifier:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivateDB'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivateDB'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivateDB'
+      Tags:
+      - Key: role
+        Value: mongodb
+        PropagateAtLaunch: true
+      - Key: environment
+        Value: !Ref EnvironmentType
+        PropagateAtLaunch: true
+      - Key: project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        PropagateAtLaunch: true
