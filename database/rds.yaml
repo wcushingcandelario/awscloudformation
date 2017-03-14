@@ -133,6 +133,7 @@ Resources:
       Engine: MySQL
       MasterUsername: !Ref DBUser
       MasterUserPassword: !Ref DBPassword
+      DBParameterGroupName: !Ref RDSParameterGroup
       VPCSecurityGroups:
       - !Ref DatabaseSecurityGroup
       DBSubnetGroupName:
