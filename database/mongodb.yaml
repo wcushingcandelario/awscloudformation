@@ -149,10 +149,10 @@ Resources:
       - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivateDB'
       - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivateDB'
       Tags:
-      - Key: role
+      - Key: Role
         Value: mongodb
         PropagateAtLaunch: true
-      - Key: environment
+      - Key: Environment
         Value: !Ref EnvironmentType
         PropagateAtLaunch: true
       - Key: Project
