@@ -22,7 +22,7 @@ Resources:
   cfPOSLoadBalancerSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
-      GroupDescription: 'POS Jetty Server load balancer security group'
+      GroupDescription: 'ELB to POS Server load balancer security group'
       VpcId:
         'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
       Tags:
@@ -40,6 +40,11 @@ Resources:
         ToPort: 443
         IpProtocol: tcp
         CidrIp: '192.168.0.0/16'
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfPromotionEngineSecurityGroup
 
 # POS Server
 

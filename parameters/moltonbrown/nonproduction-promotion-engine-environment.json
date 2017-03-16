@@ -1,0 +1,38 @@
+[{
+        "ParameterKey": "ParentVPCStack",
+        "ParameterValue": "nonproduction"
+    },
+    {
+        "ParameterKey": "EnvironmentType",
+        "ParameterValue": "dev"
+    },
+    {
+        "ParameterKey": "SSHKeyName",
+        "ParameterValue": "moltonbrown-ops"
+    },
+    {
+        "ParameterKey": "OVCURL",
+        "ParameterValue": "https://dev.mb-ovc.co.uk"
+    },
+    {
+        "ParameterKey": "MONGOURL",
+        "ParameterValue": "mongodb://mongodb-dev.mb-ovc.co.uk:27000/pe-dev"
+    },
+    {
+        "ParameterKey": "DASHPATH",
+        "ParameterValue": "https://dev.mb-ovc.co.uk/ovcdashboard/"
+    },
+    {
+        "ParameterKey": "MAXPROMOID",
+        "ParameterValue": "999999999"
+    },
+    {
+        "ParameterKey": "PROMOPATHPROTOCOL",
+        "ParameterValue": "http"
+    },
+    {
+        "ParameterKey": "PROMOPATHHOSTNAME",
+        "ParameterValue": "pe-dev"
+    }
+
+]

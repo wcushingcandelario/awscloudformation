@@ -82,6 +82,31 @@ Resources:
           Action:
           - sts:AssumeRole
       Path: "/"
+
+  cfElasticBeanstalkInstanceRolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: aws-elasticbeanstalk-instance-role
+      PolicyDocument:
+        '{
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Example",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetObject"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::ovc-github-access/dockercfg"
+                    ]
+                }
+            ]
+        }
+        '
+      Roles:
+      - Ref: cfElasticBeanstalkSerivceRole
+
   ElasticBeanstalkInstanceRoleInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:

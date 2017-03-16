@@ -26,8 +26,6 @@ Metadata:
     ParameterLabels:
       EnvironmentType:
         default: "Specify the type of environment this instance will be used in."
-      ProjectName:
-        default: "What project is this environment related to?"
       OVCURL:
         default: "Specify the URL for the OVC server. eg: http://devmysql.ovcdemo.com:8080"
       MONGOURL:
@@ -64,10 +62,6 @@ Parameters:
     Description: SSH Key Name.
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
-  ProjectName:
-    Description: Project ID.
-    Type: String
-    ConstraintDescription: Specify the project to user for billing.
   OVCURL:
     Description: OVC Server URL.
     Default: http://sample.ovcdemo.com:8080
@@ -172,9 +166,13 @@ Resources:
   #     - !GetAtt PromotionServerEnvironment.EndpointURL
 
       Tags:
-        - Key: "role"
-          Value: "promoengine"
-        - Key: "environment"
+        - Key: "Role"
+          Value: "PromoEngine"
+        - Key: "Environment"
           Value: !Ref EnvironmentType
-        - Key: "project"
-          Value: !Ref ProjectName
+        - Key: "Project"
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        - Key: LiveIdentifier
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'

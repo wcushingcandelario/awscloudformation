@@ -33,21 +33,47 @@ Steps Needed for Full Environment:
 1. Create a key pair
 
 ### Steps to allow Elastic Beanstalk access to Docker Hub credentials
+http://docs.aws.amazon.com/AmazonS3/latest/dev/example-walkthroughs-managing-access-example2.html
 Add the following S3 bucket polciy to the `OVC Demo` account's `ovc-github-access` S3 bucket.  If a policy exists, it will need to be updated to take into account the newly created AWS account you are trying to provide access to.
 
 ```
 {
-    "Version": "2012-10-17",
-    "Statement": [{
-            "Sid": "AllowXXXXXAccess",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": ["arn:aws:iam::99999999999:root"]
-            },
-            "Action": ["s3:GetObject"],
-            "Resource": ["arn:aws:s3:::ovc-github-access/dockercfg"]
-        }
+   "Version": "2012-10-17",
+   "Statement": [
+      {
+         "Sid": "Example permissions",
+         "Effect": "Allow",
+         "Principal": {
+            "AWS": "arn:aws:iam::CHILD_AWS_ACCOUNT_ID:root"
+         },
+         "Action": [
+            "s3:GetObject"
+         ],
+         "Resource": [
+            "arn:aws:s3:::ovc-github-access/dockercfg"
+         ]
+      }
+   ]
+}
+```
 
+TODO: Add to CloudFormation
+
+Next, add the following policy to the ElasticBeanstalk INSTANCE role:
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Example",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::ovc-github-access/dockercfg"
+            ]
+        }
     ]
 }
 ```
