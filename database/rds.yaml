@@ -39,7 +39,7 @@ Parameters:
   DBClass:
     Description: Instance Type.
     Type: String
-    Default: 'db.m4.large'
+    Default: 'db.t2.large'
     AllowedPattern: 'db.*'
     ConstraintDescription: 'The type of instance that RDS will run on. (Recommended is a large for PreProd and Prod) Must begin with db. eg. db.t2.small, db.m4.medium, etc'
   MaxHeapTableSize:
@@ -88,6 +88,8 @@ Resources:
       Family: MySQL5.6
       Parameters:
         lower_case_table_names: 1
+        character_set_server: utf8
+        collation_server: utf8_general_ci
         max_heap_table_size:
           Ref: MaxHeapTableSize
         tmp_table_size:
