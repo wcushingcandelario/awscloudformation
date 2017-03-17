@@ -56,7 +56,7 @@ Resources:
       InstanceTenancy: default
       Tags:
       - Key: Name
-        Value: !Sub '${ClassA}.${ClassB}.0.0/19 - ${AWS::StackName}'
+        Value: !Sub '${AWS::StackName}-${ClassA}.${ClassB}.0.0/19'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -66,7 +66,7 @@ Resources:
     Properties:
       Tags:
       - Key: Name
-        Value: !Sub '${ClassA}.${ClassB}.0.0/19'
+        Value: !Sub '${AWS::StackName}-${ClassA}.${ClassB}.0.0/19'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -85,7 +85,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'A public'
+        Value: !Sub '${AWS::StackName}-A public'
       - Key: Reach
         Value: public
       - Key: Project
@@ -100,7 +100,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'A private'
+        Value: !Sub '${AWS::StackName}-A private'
       - Key: Reach
         Value: private
       - Key: Project
@@ -115,7 +115,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'A DB'
+        Value: !Sub '${AWS::StackName}-A private DB'
       - Key: Reach
         Value: private
       - Key: Project
@@ -131,7 +131,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'B public'
+        Value: !Sub '${AWS::StackName}-B public'
       - Key: Reach
         Value: public
       - Key: Project
@@ -146,7 +146,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'B private'
+        Value: !Sub '${AWS::StackName}-B private'
       - Key: Reach
         Value: private
       - Key: Project
@@ -161,7 +161,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'B DB'
+        Value: !Sub '${AWS::StackName}-B private DB'
       - Key: Reach
         Value: private
       - Key: Project
@@ -177,7 +177,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'C public'
+        Value: !Sub '${AWS::StackName}-C public'
       - Key: Reach
         Value: public
       - Key: Project
@@ -192,7 +192,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'C private'
+        Value: !Sub '${AWS::StackName}-C private'
       - Key: Reach
         Value: private
       - Key: Project
@@ -207,7 +207,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: 'C DB'
+        Value: !Sub '${AWS::StackName}-C private DB'
       - Key: Reach
         Value: private
       - Key: Project
@@ -220,7 +220,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Public Route
+        Value: !Sub '${AWS::StackName}-Public Route'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -231,7 +231,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Private Route A
+        Value: !Sub '${AWS::StackName}-Private Route A'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -242,7 +242,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Private Route B
+        Value: !Sub '${AWS::StackName}-Private Route B'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -253,7 +253,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Private Route C
+        Value: !Sub '${AWS::StackName}-Private Route C'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -316,7 +316,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Public
+        Value: !Sub '${AWS::StackName}-Public'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -327,7 +327,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Private
+        Value: !Sub '${AWS::StackName}-Private'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
