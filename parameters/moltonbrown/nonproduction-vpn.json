@@ -1,0 +1,14 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+     {
+          "ParameterKey": "CustomerGatewayIpAddress",
+          "ParameterValue": "38.122.253.250"
+      },
+     {
+          "ParameterKey": "DestinationCidrBlock",
+          "ParameterValue": "192.168.0.0/16"
+      }
+]

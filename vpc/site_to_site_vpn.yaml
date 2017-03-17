@@ -1,0 +1,124 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'VPN Configuration to a Customer Gateway.'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'VPN Configurations'
+      Parameters:
+      - CustomerGatewayIpAddress
+      - DestinationCidrBlock
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  CustomerGatewayIpAddress:
+    Description: 'The internet-facing IP address of the customer gateway VPN.'
+    Type: String
+    AllowedPattern: '^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)'
+    ConstraintDescription: 'Must be a valid IP address.'
+  DestinationCidrBlock:
+    Description: 'The CIDR block that is associated with the local subnet of the customer network.'
+    Type: String
+    AllowedPattern: '^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}0\/\d+$'
+    ConstraintDescription: 'Input must be a correct CIDR, such as: 10.52.5.0/16'
+
+Resources:
+
+  CustomerGateway:
+    Type: AWS::EC2::CustomerGateway
+    Properties:
+      Type: ipsec.1
+      BgpAsn: 65000
+      IpAddress: !Ref CustomerGatewayIpAddress
+      Tags:
+      - Key: Name
+        Value: !Sub '${ParentVPCStack}-CustomerGateway'
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  VPNGateway:
+    Type: AWS::EC2::VPNGateway
+    Properties:
+      Type: ipsec.1
+      Tags:
+      - Key: Name
+        Value: !Sub '${ParentVPCStack}-VPNGateway'
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  AttachVpnGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      VpnGatewayId: !Ref VPNGateway
+
+  VPNConnection:
+    Type: AWS::EC2::VPNConnection
+    Properties:
+      Type: ipsec.1
+      StaticRoutesOnly: true
+      CustomerGatewayId: !Ref CustomerGateway
+      VpnGatewayId: !Ref VPNGateway
+      Tags:
+      - Key: Name
+        Value: !Sub '${ParentVPCStack}-VPNConnection'
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  VPNGatewayRoutePropagation:
+    Type: AWS::EC2::VPNGatewayRoutePropagation
+    DependsOn: VPNConnection
+    Properties:
+      RouteTableIds:
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateA'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateB'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateC'
+      VpnGatewayId: !Ref VPNGateway
+
+  VPNConnectionRoute:
+    Type: AWS::EC2::VPNConnectionRoute
+    DependsOn: VPNGatewayRoutePropagation
+    Properties:
+      DestinationCidrBlock: !Ref DestinationCidrBlock
+      VpnConnectionId: !Ref VPNConnection
+
+Outputs:
+  CustomerGateway:
+    Description: Customer Gateway
+    Value: !Ref CustomerGateway
+    Export:
+      Name: !Sub '${ParentVPCStack}-CustomerGateway'
+  VPNGateway:
+    Description: VPN Gateway
+    Value: !Ref VPNGateway
+    Export:
+      Name: !Sub '${ParentVPCStack}-VPNGateway'
+  VPNConnection:
+    Description: VPN Connection
+    Value: !Ref VPNConnection
+    Export:
+      Name: !Sub '${ParentVPCStack}-VPNConnection'
+  VPNConnectionRoute:
+    Description: VPN Connection Route
+    Value: !Ref VPNConnectionRoute
+    Export:
+      Name: !Sub '${ParentVPCStack}-VPNConnectionRoute'
