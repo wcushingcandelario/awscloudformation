@@ -25,7 +25,7 @@ Parameters:
   DestinationCidrBlock:
     Description: 'The CIDR block that is associated with the local subnet of the customer network.'
     Type: String
-    AllowedPattern: '^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}0\/\d+$'
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     ConstraintDescription: 'Input must be a correct CIDR, such as: 10.52.5.0/16'
 
 Resources:
