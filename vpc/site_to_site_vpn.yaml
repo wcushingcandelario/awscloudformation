@@ -122,3 +122,13 @@ Outputs:
     Value: !Ref VPNConnectionRoute
     Export:
       Name: !Sub '${ParentVPCStack}-VPNConnectionRoute'
+  DestinationCidrBlock:
+    Description: The customers CIDR block routed over VPN
+    Value: !Ref DestinationCidrBlock
+    Export:
+      Name: !Sub '${ParentVPCStack}-DestinationCidrBlock'
+  CustomerGatewayIpAddress:
+    Description: The customers gateway IP address the VPN connects to
+    Value: !Ref CustomerGatewayIpAddress
+    Export:
+      Name: !Sub '${ParentVPCStack}-CustomerGatewayIpAddress'

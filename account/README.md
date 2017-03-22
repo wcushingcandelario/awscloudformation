@@ -22,7 +22,7 @@ The following should be setup __*manually*__ for each new AWS account.
 * Disable un-used regions
 * MFA on root account
 * Customize IAM user login URL (IAM -> Dashboard -> Customize URL)
-* Setup consolidated billing
+* Setup consolidated billing (Request is sent from OVC Demo account to new child)
 * Register a domain (if needed, automatically creates public hosted zone)
 * Private Hosted Zone gets created AFTER a VPC is present
 * Setup MongoDB Cloud Manager

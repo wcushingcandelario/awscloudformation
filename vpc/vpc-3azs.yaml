@@ -33,7 +33,6 @@ Parameters:
   ProjectName:
     Description: 'Project or Customer name for billing purposes.'
     Type: String
-    Default: 'oneview'
     ConstraintDescription: 'Must be a string matching the project or customer name for tagging purposes.  This will be attached to all resources in the VPC.'
   LiveIdentifier:
     Description: 'Indicator for "nonproduction" or "production" resources.'
