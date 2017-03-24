@@ -1,0 +1,705 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Security group configuration for OneView Commerce POS Server'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  ADSecurityGroupId:
+    Description: The Group ID for the security group created by SimpleAD.
+    Type: AWS::EC2::SecurityGroup::Id
+  CustomerADAccessCIDR1:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '192.168.0.0/16'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR2InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR2 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR2:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR3InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR3 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR3:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR4InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR4 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR4:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR5InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR5 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR5:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR6InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR6 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR6:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR7InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR7 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR7:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR8InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR8 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR8:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR9InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR9 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR9:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerADAccessCIDR10InUse:
+    Description: Boolean indicating if CustomerADAccessCIDR10 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerADAccessCIDR10:
+    Description: Source CIDR for incoming connections to the SimpleAD server.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+Conditions:
+  CIDR2InUse: !Equals [!Ref CustomerADAccessCIDR2InUse, true]
+  CIDR3InUse: !Equals [!Ref CustomerADAccessCIDR3InUse, true]
+  CIDR4InUse: !Equals [!Ref CustomerADAccessCIDR4InUse, true]
+  CIDR5InUse: !Equals [!Ref CustomerADAccessCIDR5InUse, true]
+  CIDR6InUse: !Equals [!Ref CustomerADAccessCIDR6InUse, true]
+  CIDR7InUse: !Equals [!Ref CustomerADAccessCIDR7InUse, true]
+  CIDR8InUse: !Equals [!Ref CustomerADAccessCIDR8InUse, true]
+  CIDR9InUse: !Equals [!Ref CustomerADAccessCIDR9InUse, true]
+  CIDR10InUse: !Equals [!Ref CustomerADAccessCIDR10InUse, true]
+
+Resources:
+
+  SimpleADIngress1TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR1
+  SimpleADIngress1UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR1
+  SimpleADIngress1TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR1
+  SimpleADIngress1UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR1
+  SimpleADIngress1TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR1
+  SimpleADIngress1UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR1
+
+  SimpleADIngress2TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR2InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR2
+  SimpleADIngress2UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR2InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR2
+  SimpleADIngress2TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR2InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR2
+  SimpleADIngress2UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR2InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR2
+  SimpleADIngress2TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR2InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR2
+  SimpleADIngress2UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR2InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR2
+
+  SimpleADIngress3TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR3InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR3
+  SimpleADIngress3UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR3InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR3
+  SimpleADIngress3TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR3InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR3
+  SimpleADIngress3UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR3InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR3
+  SimpleADIngress3TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR3InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR3
+  SimpleADIngress3UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR3InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR3
+
+  SimpleADIngress4TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR4InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR4
+  SimpleADIngress4UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR4InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR4
+  SimpleADIngress4TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR4InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR4
+  SimpleADIngress4UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR4InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR4
+  SimpleADIngress4TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR4InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR4
+  SimpleADIngress4UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR4InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR4
+
+  SimpleADIngress5TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR5InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR5
+  SimpleADIngress5UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR5InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR5
+  SimpleADIngress5TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR5InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR5
+  SimpleADIngress5UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR5InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR5
+  SimpleADIngress5TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR5InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR5
+  SimpleADIngress5UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR5InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR5
+
+  SimpleADIngress6TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR6InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR6
+  SimpleADIngress6UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR6InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR6
+  SimpleADIngress6TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR6InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR6
+  SimpleADIngress6UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR6InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR6
+  SimpleADIngress6TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR6InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR6
+  SimpleADIngress6UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR6InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR6
+
+  SimpleADIngress7TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR7InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR7
+  SimpleADIngress7UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR7InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR7
+  SimpleADIngress7TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR7InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR7
+  SimpleADIngress7UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR7InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR7
+  SimpleADIngress7TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR7InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR7
+  SimpleADIngress7UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR7InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR7
+
+  SimpleADIngress8TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR8InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR8
+  SimpleADIngress8UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR8InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR8
+  SimpleADIngress8TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR8InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR8
+  SimpleADIngress8UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR8InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR8
+  SimpleADIngress8TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR8InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR8
+  SimpleADIngress8UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR8InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR8
+
+  SimpleADIngress9TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR9InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR9
+  SimpleADIngress9UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR9InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR9
+  SimpleADIngress9TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR9InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR9
+  SimpleADIngress9UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR9InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR9
+  SimpleADIngress9TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR9InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR9
+  SimpleADIngress9UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR9InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR9
+
+  SimpleADIngress10TCP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR10InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR10
+  SimpleADIngress10UDP53:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR10InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 53
+      ToPort: 53
+      CidrIp: !Ref CustomerADAccessCIDR10
+  SimpleADIngress10TCP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR10InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR10
+  SimpleADIngress10UDP389:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR10InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 389
+      ToPort: 389
+      CidrIp: !Ref CustomerADAccessCIDR10
+  SimpleADIngress10TCP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR10InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR10
+  SimpleADIngress10UDP88:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR10InUse
+    Properties:
+      GroupId: !Ref ADSecurityGroupId
+      IpProtocol: udp
+      FromPort: 88
+      ToPort: 88
+      CidrIp: !Ref CustomerADAccessCIDR10

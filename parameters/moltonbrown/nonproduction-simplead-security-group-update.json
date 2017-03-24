@@ -1,0 +1,10 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+    {
+         "ParameterKey": "ADSecurityGroupId",
+         "ParameterValue": "sg-5d8a4524"
+     }
+]
