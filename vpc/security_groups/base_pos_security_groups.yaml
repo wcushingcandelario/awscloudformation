@@ -39,11 +39,6 @@ Resources:
         FromPort: 443
         ToPort: 443
         IpProtocol: tcp
-        CidrIp: '192.168.0.0/16'
-      -
-        FromPort: 443
-        ToPort: 443
-        IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfPromotionEngineSecurityGroup
 
 # POS Server

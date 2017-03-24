@@ -602,3 +602,18 @@ Outputs:
     Value: !Ref RDSSubnetGroup
     Export:
       Name: !Sub '${AWS::StackName}-RDSSubnetGroup'
+  EIPA:
+    Description: 'NAT Gateway Elastic IP A'
+    Value: !Ref EIPA
+    Export:
+      Name: !Sub '${AWS::StackName}-NATGatewayEIPA'
+  EIPB:
+    Description: 'NAT Gateway Elastic IP B'
+    Value: !Ref EIPB
+    Export:
+      Name: !Sub '${AWS::StackName}-NATGatewayEIPB'
+  EIPC:
+    Description: 'NAT Gateway Elastic IP C'
+    Value: !Ref EIPC
+    Export:
+      Name: !Sub '${AWS::StackName}-NATGatewayEIPC'
