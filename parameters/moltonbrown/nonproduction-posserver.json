@@ -1,0 +1,34 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+     {
+          "ParameterKey": "SSHKeyPair",
+          "ParameterValue": "moltonbrown-ops"
+      },
+     {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.large"
+      },
+     {
+          "ParameterKey": "AMIID",
+          "ParameterValue": "ami-9f6653f9"
+      },
+     {
+          "ParameterKey": "EnvironmentType",
+          "ParameterValue": "dev"
+      },
+     {
+          "ParameterKey": "CertificateId",
+          "ParameterValue": "arn:aws:acm:eu-west-1:020743871807:certificate/8c546f72-be23-4b11-8b32-8bc3c079acfe"
+      },
+     {
+          "ParameterKey": "HostedZoneResourceId",
+          "ParameterValue": "Z1F1Y0GUYLTJLJ"
+      },
+     {
+          "ParameterKey": "HostedZoneName",
+          "ParameterValue": "mb-ovc.co.uk"
+     }
+]

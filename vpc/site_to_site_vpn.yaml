@@ -89,6 +89,7 @@ Resources:
     DependsOn: VPNConnection
     Properties:
       RouteTableIds:
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePublic'
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateA'
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateB'
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateC'

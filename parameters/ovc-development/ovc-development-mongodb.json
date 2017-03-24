@@ -1,0 +1,38 @@
+[
+         {
+          "ParameterKey": "EnvironmentType",
+          "ParameterValue": "other"
+      },
+         {
+          "ParameterKey": "SSHKeyPair",
+          "ParameterValue": "ovc-private"
+      },
+     {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.small"
+      },
+     {
+          "ParameterKey": "AMIID",
+          "ParameterValue": "ami-0b33d91d"
+      },
+     {
+          "ParameterKey": "MMSGroupId",
+          "ParameterValue": "58c994addf9db115dac35c33"
+      },
+     {
+          "ParameterKey": "MMSApiKey",
+          "ParameterValue": "a6bd0f1f41969a55c932d7cabeffa6c7"
+      },
+     {
+          "ParameterKey": "LogLevel",
+          "ParameterValue": "INFO"
+      },
+     {
+          "ParameterKey": "MaxLogFiles",
+          "ParameterValue": "5"
+      },
+     {
+          "ParameterKey": "MaxLogFileSize",
+          "ParameterValue": "268435456"
+      }
+]

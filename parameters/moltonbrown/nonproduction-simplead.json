@@ -1,0 +1,14 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+    {
+         "ParameterKey": "FQDNName",
+         "ParameterValue": "mb.nonproduction.net"
+     },
+    {
+         "ParameterKey": "SimpleADPW",
+         "ParameterValue": "M0ltonbrown123!@#"
+     }
+]
