@@ -1,0 +1,533 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  OVC POS Server AutoScaling Group
+
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Launch Configuration Details'
+      Parameters:
+      - SSHKeyPair
+      - InstanceType
+      - AMIID
+      - POSServerIAMUserSSHAccess
+    - Label:
+        default: 'DNS Configuration'
+      Parameters:
+      - HostedZoneName
+      - HostedZoneResourceId
+    - Label:
+        default: 'Security Group Ingress Configuration'
+      Parameters:
+      - CustomerPOSAccessCIDR1
+      - CustomerPOSAccessCIDR2InUse
+      - CustomerPOSAccessCIDR2
+      - CustomerPOSAccessCIDR3InUse
+      - CustomerPOSAccessCIDR3
+      - CustomerPOSAccessCIDR4InUse
+      - CustomerPOSAccessCIDR4
+      - CustomerPOSAccessCIDR5InUse
+      - CustomerPOSAccessCIDR5
+      - CustomerPOSAccessCIDR6InUse
+      - CustomerPOSAccessCIDR6
+      - CustomerPOSAccessCIDR7InUse
+      - CustomerPOSAccessCIDR7
+      - CustomerPOSAccessCIDR8InUse
+      - CustomerPOSAccessCIDR8
+      - CustomerPOSAccessCIDR9InUse
+      - CustomerPOSAccessCIDR9
+      - CustomerPOSAccessCIDR10InUse
+      - CustomerPOSAccessCIDR10
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  SSHKeyPair:
+    Description: 'Name of the SSH Key in AWS to use.'
+    Type: AWS::EC2::KeyPair::KeyName
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    ConstraintDescription: 'The type of instance that the POS Server will run on eg. t2.small, m4.medium, etc'
+  AMIID:
+    Description: AMI ID to attach.
+    Type: AWS::EC2::Image::Id
+    ConstraintDescription: 'The AMI ID that will be attached to the Launch Configuration.'
+  CertificateId:
+    Description: Amazon Issued Certificate ARN.
+    Type: String
+    AllowedPattern: "arn:aws:acm.*"
+    ConstraintDescription: 'The ARN of the Certificate issued by AWS in Certificate Manager.'
+  POSServerIAMUserSSHAccess:
+    Description: 'Synchronize public keys of IAM users to enable personalized SSH access (Doc: https://cloudonaut.io/manage-aws-ec2-ssh-access-with-iam/).'
+    Type: String
+    Default: false
+    AllowedValues:
+    - true
+    - false
+    ConstraintDescription: 'Must be either true or false.'
+  CrossZoneLoadBalancing:
+    Description: 'Is the Load Balancer spread across multiple availability zones.'
+    Type: String
+    Default: false
+    AllowedValues:
+    - true
+    - false
+    ConstraintDescription: 'Must be either true or false.'
+  EnvironmentType:
+    Description: Environment Type.
+    Type: String
+    AllowedValues:
+      - dev
+      - qa
+      - uat
+      - sit
+      - preproduction
+      - production
+      - other
+    ConstraintDescription: 'The type of environment this Mongo is for ie: dev, qa, etc.'
+  HostedZoneResourceId:
+    Description: 'Hosted Zone Id for the Route53 domain to create the DBs DNS entry.'
+    Type: String
+  HostedZoneName:
+    Description: 'Hosted Zone Name for the Route53 domain to create the DBs DNS entry.'
+    Type: String
+  CustomerPOSAccessCIDR1:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '192.168.0.0/16'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR2InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR2 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR2:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR3InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR3 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR3:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR4InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR4 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR4:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR5InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR5 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR5:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR6InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR6 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR6:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR7InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR7 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR7:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR8InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR8 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR8:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR9InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR9 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR9:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+  CustomerPOSAccessCIDR10InUse:
+    Description: Boolean indicating if CustomerPOSAccessCIDR10 is used.
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must specify true or false.
+  CustomerPOSAccessCIDR10:
+    Description: CIDR for customer access to the POS Server Load Balancer.
+    Default: '127.0.0.1/32'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: Must be a valid CIDR.
+Conditions:
+  HasIAMUserSSHAccess: !Equals [!Ref POSServerIAMUserSSHAccess, true]
+  CIDR2InUse: !Equals [!Ref CustomerPOSAccessCIDR2InUse, true]
+  CIDR3InUse: !Equals [!Ref CustomerPOSAccessCIDR3InUse, true]
+  CIDR4InUse: !Equals [!Ref CustomerPOSAccessCIDR4InUse, true]
+  CIDR5InUse: !Equals [!Ref CustomerPOSAccessCIDR5InUse, true]
+  CIDR6InUse: !Equals [!Ref CustomerPOSAccessCIDR6InUse, true]
+  CIDR7InUse: !Equals [!Ref CustomerPOSAccessCIDR7InUse, true]
+  CIDR8InUse: !Equals [!Ref CustomerPOSAccessCIDR8InUse, true]
+  CIDR9InUse: !Equals [!Ref CustomerPOSAccessCIDR9InUse, true]
+  CIDR10InUse: !Equals [!Ref CustomerPOSAccessCIDR10InUse, true]
+
+Resources:
+
+  OVCPOSServerLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AMIID
+      SecurityGroups:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-POSServerSecurityGroup'
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref SSHKeyPair
+      UserData:
+        'Fn::Base64': !Sub |
+          #!/bin/bash -x
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource OVCPOSServerLaunchConfiguration --configsets default --region ${AWS::Region}
+
+    Metadata:
+      'AWS::CloudFormation::Init':
+        configSets:
+          default:
+            - config_setup
+
+        config_setup:
+          commands:
+            'run_ovc_bootstrap':
+              command: |
+                exec 1>/root/userdata.log 2>&1
+                set -x
+
+                /bin/date
+
+                REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
+                INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+                ENV=$(aws ec2 describe-tags --filters "Name=resource-id,Values=${INSTANCE_ID}" "Name=key,Values=Environment" --region=${REGION} --output=text | cut -f5)
+                CUSTOMER=$(aws ec2 describe-tags --filters "Name=resource-id,Values=${INSTANCE_ID}" "Name=key,Values=Project" --region=${REGION} --output=text | cut -f5)
+
+                export ENV=${ENV}
+                export CUSTOMER=${CUSTOMER}
+
+                #aws s3 cp s3://ovc-travisperkins-whitelist/${ENV}/locationWhiteList.ovccfg /opt/ovc/Application-Dynamic-Objects/Point-Of-Sale/Server-Data/tp-all/config/posMServer/locationWhiteList.ovccfg
+
+                logentries_config() {
+                    if hash le 2>/dev/null; then
+                        echo "Logentries installed.  Configuring the instance."
+                        sed -i "s/TEST_environment_name/[${CUSTOMER}]-${ENV}/g" /etc/le/config
+                        le reinit
+                        service logentries restart
+                    else
+                        echo "Logentries is not installed"
+                    fi
+                }
+
+                export FILE_NAME=/opt/ovc/Platform-Dynamic-Objects/config/unifiedConfig.properties
+                cp $FILE_NAME $FILE_NAME.ORIG
+                sudo mv $FILE_NAME.$ENV $FILE_NAME
+
+                export FILE_NAME=/opt/ovc/Platform-Dynamic-Objects/config/tools.properties
+                cp $FILE_NAME $FILE_NAME.ORIG
+                sudo mv $FILE_NAME.$ENV $FILE_NAME
+
+                export FILE_NAME=/var/www/html/ovcdashboard/app/Config/database.php
+                cp $FILE_NAME $FILE_NAME.ORIG
+                sudo mv $FILE_NAME.$ENV $FILE_NAME
+
+                export FILE_NAME=/opt/jetty/webapps/context.xml
+                cp $FILE_NAME $FILE_NAME.ORIG
+                sudo mv $FILE_NAME.$ENV $FILE_NAME
+
+                export FILE_NAME=/var/www/html/ovcdashboard/app/Config/setting_var.php
+                cp $FILE_NAME $FILE_NAME.ORIG
+                sudo mv $FILE_NAME.$ENV $FILE_NAME
+
+                export FILE_NAME=/opt/ovc/posWebapp/WEB-INF/web.xml
+                export LOCAL_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+                sudo /usr/bin/patch $FILE_NAME $FILE_NAME.patch.$ENV
+                sed -i.bak "s#http://this_host:8080#https://$LOCAL_IP#" $FILE_NAME
+
+                #Hack for accounts where DNS is bawked
+                # for I in `seq 1 254`; do echo 10.0.0.$I ip-10-0-0-$I ip-10-0-0-$I.ec2.local >> /etc/hosts; done
+
+                # sed -i "s/env\:unknown/env:${ENV}/" /etc/dd-agent/conf.d/http_check.yaml
+
+                sed -i "s/env\:UNDEFINED/${ENV}/" /opt/jetty/newrelic/newrelic.yml
+
+                sed -i.bak '/-Dorg\.quartz\.scheduler\.hostName=.*/c\#This line is removed by the admin.' /opt/jetty/start.ini
+
+                sed -i s#SITE_URL\',\"http:#SITE_URL\',\"https:#g /var/www/html/ovcdashboard/app/Config/bootstrap.php
+                sed -i "/-Dorg.quartz.scheduler.instanceId=/c\-Dorg.quartz.scheduler.hostName=`hostname -f`" /opt/jetty/start.ini
+
+                sed -i '/^org\.quartz\.scheduler\.rmi\.export=/ s/true/false/' /opt/ovc/Platform-Dynamic-Objects/config/quartz.properties
+
+                logentries_config
+
+                sudo /sbin/service jetty stop
+                killall jetty
+                ps aux | grep jetty
+                sudo /sbin/service jetty start
+
+                sudo /sbin/service httpd restart
+
+                # aws s3 cp s3://ovc-userdata-scripts/${ENV}/auto-userdata.sh auto-userdata.sh
+                # chmod +x auto-userdata.sh
+                # source auto-userdata.sh
+
+                #Sets app name for newrelic
+                sed -i "s/UNDEFINED/${ENV}/g" /opt/jetty/newrelic-java/newrelic.yml
+
+
+  AutoScalingGroup:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      LaunchConfigurationName: !Ref OVCPOSServerLaunchConfiguration
+      LoadBalancerNames:
+      - !Ref LoadBalancer
+      MinSize: 1
+      MaxSize: 1
+      DesiredCapacity: 1
+      Cooldown: 240
+      HealthCheckGracePeriod: 300
+      VPCZoneIdentifier:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivateDB'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivateDB'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivateDB'
+      Tags:
+      - Key: Role
+        Value: POSServer
+        PropagateAtLaunch: true
+      - Key: Environment
+        Value: !Ref EnvironmentType
+        PropagateAtLaunch: true
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        PropagateAtLaunch: true
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+        PropagateAtLaunch: true
+
+  LoadBalancer:
+    Type: 'AWS::ElasticLoadBalancing::LoadBalancer'
+    Properties:
+      Subnets:
+      - subnet-c32e3ea7
+      - subnet-32e5f444
+      - subnet-cce2bf94
+      # - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
+      Listeners:
+      - InstancePort: 443
+        InstanceProtocol: HTTP
+        LoadBalancerPort: 443
+        Protocol: HTTPS
+        SSLCertificateId: !Ref CertificateId
+      HealthCheck:
+        HealthyThreshold: 2
+        Interval: 15
+        Target: 'TCP:8080'
+        Timeout: 10
+        UnhealthyThreshold: 3
+      SecurityGroups:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-POSLoadBalancerSecurityGroup'
+      - !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      Scheme: 'internal'
+      CrossZone: !Ref CrossZoneLoadBalancing
+      Tags:
+      - Key: Environment
+        Value: !Ref EnvironmentType
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  LoadBalancerDNSEntry:
+    Type: AWS::Route53::RecordSet
+    DependsOn: LoadBalancer
+    Properties:
+      HostedZoneId: !Ref 'HostedZoneResourceId'
+      Comment: !Sub '${ParentVPCStack}-POSServer-LoadBalancer'
+      Name: !Join ['', [!Sub '${EnvironmentType}', ., !Ref 'HostedZoneName', .]]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt LoadBalancer.DNSName
+
+  POSLoadBalancerCustomerAccessSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Load balancer incoming customer connections security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value:  POSLoadBalancerCustomerAccessSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        CidrIp: !Ref CustomerPOSAccessCIDR1
+
+  POSLoadBalancerIngress2:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR2InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR2
+  POSLoadBalancerIngress3:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR3InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR3
+  POSLoadBalancerIngress4:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR4InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR4
+  POSLoadBalancerIngress5:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR5InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR5
+  POSLoadBalancerIngress6:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR6InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR6
+  POSLoadBalancerIngress7:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR7InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR7
+  POSLoadBalancerIngress8:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR8InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR8
+  POSLoadBalancerIngress9:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR9InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR9
+  POSLoadBalancerIngress10:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: CIDR10InUse
+    Properties:
+      GroupName: !Ref POSLoadBalancerCustomerAccessSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref CustomerPOSAccessCIDR10
