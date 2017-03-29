@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Inventory Manager ElasticBeanstalk application template.'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  HostedZoneId:
+    Description: 'The Hosted Zone ID used to create Record Sets (URLs)'
+    Type: String
+  HostedZoneDomainName:
+    Description: 'The Domain Name with extension used to create Record Sets (URLs). eg: ovcdemo.com'
+    Type: String
+  SolutionStackName:
+    Description: 'The solution stack used'
+    Type: String
+    Default: '64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)'
+
+Resources:
+
+  InventoryManager:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      Description: OneView Inventory Manager
+    # Important
+    # If you specify a name, you cannot perform updates that require replacement of this resource.
+
+  InventoryManagerConfigurationTemplate:
+    Type: AWS::ElasticBeanstalk::ConfigurationTemplate
+    Properties:
+      ApplicationName:
+        Ref: InventoryManager
+      Description: Inventory Manager Configuration Template
+      OptionSettings:
+
+      # Scaling Settings
+      - Namespace: aws:elasticbeanstalk:environment
+        OptionName: EnvironmentType
+        Value: LoadBalanced
+
+      # VPC Network Settings
+      - Namespace: aws:ec2:vpc
+        OptionName: VPCId
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      - Namespace: aws:ec2:vpc
+        OptionName: Subnets
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPrivate'
+      - Namespace: aws:ec2:vpc
+        OptionName: ELBSubnets
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
+      - Namespace: aws:ec2:vpc
+        OptionName: AssociatePublicIpAddress
+        Value: false
+
+      # Settings
+      - Namespace: aws:elasticbeanstalk:healthreporting:system
+        OptionName: SystemType
+        Value: enhanced
+      - Namespace: aws:autoscaling:launchconfiguration
+        OptionName: SecurityGroups
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerSecurityGroup'
+
+      SolutionStackName: !Ref SolutionStackName
+
+Outputs:
+  InventoryManagerApplication:
+    Description: 'Inventory Manager Application'
+    Value: !Ref InventoryManager
+    Export:
+      Name: !Sub '${ParentVPCStack}-InventoryManagerApplication'
+  InventoryManagerConfigurationTemplate:
+    Description: 'Inventory Manager Configuration Template'
+    Value: !Ref InventoryManagerConfigurationTemplate
+    Export:
+      Name: !Sub '${ParentVPCStack}-InventoryManagerConfigurationTemplate'
+  HostedZone:
+    Description: 'Inventory Manager Hosted Zone'
+    Value: !Ref HostedZoneId
+    Export:
+      Name: !Sub '${ParentVPCStack}-InventoryManagerHostedZoneId'
+  HostedZoneDomainName:
+    Description: 'Inventory Manager Domain Name'
+    Value: !Ref HostedZoneDomainName
+    Export:
+      Name: !Sub '${ParentVPCStack}-InventoryManagerHostedZoneDomainName'

@@ -40,6 +40,11 @@ Resources:
         ToPort: 443
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfPromotionEngineSecurityGroup
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref InventoryManagerSecurityGroup
 
 # POS Server
 
@@ -97,6 +102,23 @@ Resources:
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
 
+# Inventory Manager - Empty group to allow MongoDB Security Group Ingress
+  InventoryManagerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Inventory Manager security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value: InventoryManagerSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
 
 # MongoDB Cloud Manager
 
@@ -126,6 +148,11 @@ Resources:
         ToPort: 27020
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfPromotionEngineSecurityGroup
+      -
+        FromPort: 27000
+        ToPort: 27020
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref InventoryManagerSecurityGroup
       -
         FromPort: 22
         ToPort: 22
@@ -187,6 +214,11 @@ Outputs:
     Value: !Ref cfPromotionEngineSecurityGroup
     Export:
       Name: !Sub '${ParentVPCStack}-PromotionEngineSecurityGroup'
+  InventoryManagerSecurityGroup:
+    Description: Inventory Manager Instance Security Group
+    Value: !Ref InventoryManagerSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-InventoryManagerSecurityGroup'
   BastionHostSecurityGroup:
     Description: Bastion Host Security Group
     Value: !Ref cfBastionHostSecurityGroup

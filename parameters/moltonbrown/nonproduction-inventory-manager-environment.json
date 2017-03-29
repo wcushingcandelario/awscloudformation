@@ -1,0 +1,74 @@
+[{
+        "ParameterKey": "ParentVPCStack",
+        "ParameterValue": "nonproduction"
+    },
+    {
+        "ParameterKey": "EnvironmentType",
+        "ParameterValue": "dev"
+    },
+    {
+        "ParameterKey": "InstanceType",
+        "ParameterValue": "t2.large"
+    },
+    {
+        "ParameterKey": "SSHKeyName",
+        "ParameterValue": "moltonbrown-ops"
+    },
+    {
+        "ParameterKey": "HostedZoneId",
+        "ParameterValue": "Z1F1Y0GUYLTJLJ"
+    },
+    {
+        "ParameterKey": "HostedZoneDomainName",
+        "ParameterValue": "mb-ovc.co.uk"
+    },
+    {
+        "ParameterKey": "DBCONN",
+        "ParameterValue": "mongodb://mongodb-dev.mb-ovc.co.uk:27000/im-dev"
+    },
+    {
+        "ParameterKey": "APIPORT",
+        "ParameterValue": "3000"
+    },
+    {
+        "ParameterKey": "AUTHPORT",
+        "ParameterValue": "3000"
+    },
+
+    {
+        "ParameterKey": "CLIENTPORT",
+        "ParameterValue": "3000"
+    },
+
+    {
+        "ParameterKey": "DASHPATH",
+        "ParameterValue": "https://dev.mb-ovc.co.uk/ovcdashboard/"
+    },
+
+    {
+        "ParameterKey": "JMSPATH",
+        "ParameterValue": "https://dev.mb-ovc.co.uk:OVCPORT/json/jmshandler"
+    },
+
+    {
+        "ParameterKey": "BROKERPATH",
+        "ParameterValue": "tcp://IMSERVER:3008"
+    },
+
+    {
+        "ParameterKey": "BROADCASTPATH",
+        "ParameterValue": "tcp://*:3008"
+    },
+
+    {
+        "ParameterKey": "AUTHPATH",
+        "ParameterValue": "https://IMSERVER:3009"
+    },
+
+    {
+        "ParameterKey": "APIPATH",
+        "ParameterValue": "https://IMSERVER:3007"
+    }
+
+
+]

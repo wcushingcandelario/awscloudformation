@@ -1,0 +1,415 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Inventory Manager ElasticBeanstalk environment template.'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Environment Setup'
+      Parameters:
+      - EnvironmentType
+      - InstanceType
+      - SSHKeyName
+    - Label:
+        default: 'Environment Configuration'
+      Parameters:
+      - DBCONN
+      - DASHPATH
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  MinASGSize:
+    Description: 'Minimum number of instances running'
+    Type: Number
+    Default: 1
+  MaxASGSize:
+    Description: 'Maximum number of instances running'
+    Type: Number
+    Default: 2
+  EnvironmentType:
+    Description: Environment Type.
+    Default: dev
+    Type: String
+    AllowedValues:
+      - dev
+      - qa
+      - uat
+      - sit
+      - test
+      - rc
+      - preproduction
+      - production
+      - other
+    ConstraintDescription: Specify the type of environment this instance will be used in.
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    Default: t2.small
+    ConstraintDescription: 'The type of instance that the Inventory Manager will run on eg. t2.small, m3.medium, etc'
+  SSHKeyName:
+    Description: SSH Key Name.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
+  HostedZoneId:
+    Description: Route53 Hosted Zone Id.
+    Type: AWS::Route53::HostedZone::Id
+    ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
+  HostedZoneDomainName:
+    Description: Route53 Hosted Zone Domain Name.
+    Type: String
+    ConstraintDescription: 'The domain name used for the Hosted Zone.'
+  DBCONN:
+    Description: Mongo URL.
+    Default: mongodb://sample.ovcdemo.ovc/dbname
+    Type: String
+    ConstraintDescription: Specify the URL for MongoDB.
+  APIPORT:
+    Description: API Port.
+    Type: Number
+    ConstraintDescription: Specify the API port.
+  AUTHPORT:
+    Description: Mongo URL.
+    Type: Number
+    ConstraintDescription: Specify the Authorization port.
+  CLIENTPORT:
+    Description: Mongo URL.
+    Type: Number
+    ConstraintDescription: Specify the Client port.
+  DASHPATH:
+    Description: OVC Dashboard URL.
+    Default: http://sample.ovcdemo.com/ovcdashboard/
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC Dashboard.
+  JMSPATH:
+    Description: JMS path.
+    Type: String
+    ConstraintDescription: URL of the JMS handler on the OVC Server.
+  BROKERPATH:
+    Description: JMS path.
+    Type: String
+    ConstraintDescription: URL of the JMS handler on the OVC Server.
+  BROADCASTPATH:
+    Description: Broadcast path.
+    Type: String
+    ConstraintDescription: Broadcast path.
+  AUTHPATH:
+    Description: Authorization path.
+    Type: String
+    ConstraintDescription: Authorization path.
+  APIPATH:
+    Description: API path.
+    Type: String
+    ConstraintDescription: API path.
+  MessageRetentionPeriodSetting:
+    Description: How many seconds should SQS messages be retained.
+    Type: Number
+    MaxValue: 1209600
+    Default: 1209600
+    ConstraintDescription: Must be less than or equal to 1209600.
+  MaxReceiveCountSetting:
+    Description: How many reads are allowed before pushing a message to the dead letter queue.
+    Type: Number
+    MaxValue: 25
+    Default: 5
+    ConstraintDescription: Must be less than or equal to 25.
+
+Resources:
+  InventoryManagerServerEnvironment:
+    Type: "AWS::ElasticBeanstalk::Environment"
+    DependsOn:
+    - QueueStockExport
+    - QueueCountExport
+    - QueueInventoryBalanceExport
+    - QueueAdjustExport
+    - QueuePOSubmit
+    - QueuePOConfirmed
+    - QueuePOASN
+    - QueuePOStLog
+    Properties:
+      ApplicationName:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerApplication'
+      Description: Inventory Manager
+      EnvironmentName: !Sub '${EnvironmentType}-im'
+      TemplateName:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerConfigurationTemplate'
+      OptionSettings:
+
+        # Environment Settings
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value:
+            'Fn::ImportValue': ElasticBeanstalkSerivceRole
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value:
+            'Fn::ImportValue': ElasticBeanstalkInstanceRoleInstanceProfile
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: !Ref MinASGSize
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: !Ref MaxASGSize
+
+          # ELB Settings
+        - Namespace: aws:elb:loadbalancer
+          OptionName: CrossZone
+          Value: true
+
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBScheme
+          Value: internal
+
+        - Namespace: aws:elb:listener:3007
+          OptionName: ListenerProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:3007
+          OptionName: InstanceProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:3007
+          OptionName: InstancePort
+          Value: 3007
+        - Namespace: aws:elb:listener:3008
+          OptionName: InstanceProtocol
+          Value: TCP
+        - Namespace: aws:elb:listener:3008
+          OptionName: ListenerProtocol
+          Value: TCP
+        - Namespace: aws:elb:listener:3008
+          OptionName: InstancePort
+          Value: 3008
+        - Namespace: aws:elb:listener:3009
+          OptionName: InstanceProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:3009
+          OptionName: ListenerProtocol
+          Value: HTTP
+        - Namespace: aws:elb:listener:3009
+          OptionName: InstancePort
+          Value: 3009
+
+          # Scaling Settings
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: !Ref InstanceType
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref SSHKeyName
+
+          # Environment Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_CONN
+          Value: !Ref DBCONN
+
+          # Application Configuration
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: API_PORT
+          Value: !Ref APIPORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AUTH_PORT
+          Value: !Ref AUTHPORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: CLIENT_PORT
+          Value: !Ref CLIENTPORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DASH_PATH
+          Value: !Ref DASHPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_PATH
+          Value: !Ref JMSPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: BROKER_PATH
+          Value: !Ref BROKERPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: BROADCAST_PATH
+          Value: !Ref BROADCASTPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AUTH_PATH
+          Value: !Ref AUTHPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: API_PATH
+          Value: !Ref APIPATH
+
+          # Queue Configuration - DO NOT CHANGE, Set Automatically
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_STOCK_EXPORT
+          Value: !Ref QueueStockExport
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_COUNT_EXPORT
+          Value: !Ref QueueCountExport
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_INV_BAL_EXPORT
+          Value: !Ref QueueInventoryBalanceExport
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_ADJUST_EXPORT
+          Value: !Ref QueueAdjustExport
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_PO_SUBMIT
+          Value: !Ref QueuePOSubmit
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_PO_CONFIRMED
+          Value: !Ref QueuePOConfirmed
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_PO_ASN
+          Value: !Ref QueuePOASN
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_QUEUE_POS
+          Value: !Ref QueuePOStLog
+      Tags:
+        - Key: "Role"
+          Value: "InventoryManager"
+        - Key: "Environment"
+          Value: !Ref EnvironmentType
+        - Key: "Project"
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        - Key: LiveIdentifier
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  QueueStockExport:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueueStockExportDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueueStockExportDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueueStockExportDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+  QueueCountExport:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueueCountExportDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueueCountExportDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueueCountExportDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+  QueueInventoryBalanceExport:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueueInventoryBalanceExportDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueueInventoryBalanceExportDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueueInventoryBalanceExportDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+  QueueAdjustExport:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueueAdjustExportDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueueAdjustExportDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueueAdjustExportDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+  QueuePOSubmit:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueuePOSubmitDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueuePOSubmitDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueuePOSubmitDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+  QueuePOConfirmed:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueuePOConfirmedDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueuePOConfirmedDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueuePOConfirmedDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+  QueuePOASN:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueuePOASNDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueuePOASNDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueuePOASNDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+  QueuePOStLog:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueuePOStLogDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueuePOStLogDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueuePOStLogDLQ:
+    Type: "AWS::SQS::Queue"
+
+
+
+  # DNSRecord:
+  #   Type: AWS::Route53::RecordSet
+  #   DependsOn: InventoryManagerServerEnvironment
+  #   Properties:
+  #     HostedZoneId:
+  #       'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerHostedZoneId'
+  #     # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
+  #     Name: !Join ['', [!Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerHostedZoneDomainName']]
+  #     Type: CNAME
+  #     TTL: '60'
+  #     ResourceRecords:
+  #     - !GetAtt InventoryManagerServerEnvironment.EndpointURL
