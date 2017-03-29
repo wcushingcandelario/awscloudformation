@@ -48,10 +48,13 @@ Parameters:
     AllowedValues:
       - dev
       - qa
+      - uat
+      - sit
       - test
       - rc
       - preproduction
       - production
+      - other
     ConstraintDescription: Specify the type of environment this instance will be used in.
   InstanceType:
     Description: Instance Type.
