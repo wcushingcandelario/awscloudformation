@@ -42,17 +42,17 @@
 
     {
         "ParameterKey": "DASHPATH",
-        "ParameterValue": "https://dev.mb-ovc.co.uk/ovcdashboard/"
+        "ParameterValue": "http://dev.mb-ovc.co.uk/ovcdashboard/"
     },
 
     {
         "ParameterKey": "JMSPATH",
-        "ParameterValue": "https://dev.mb-ovc.co.uk:OVCPORT/json/jmshandler"
+        "ParameterValue": "http://dev.mb-ovc.co.uk:OVCPORT/json/jmshandler"
     },
 
     {
         "ParameterKey": "BROKERPATH",
-        "ParameterValue": "tcp://IMSERVER:3008"
+        "ParameterValue": "tcp://dev-im.mb-ovc.co.uk:3008"
     },
 
     {
@@ -62,12 +62,12 @@
 
     {
         "ParameterKey": "AUTHPATH",
-        "ParameterValue": "https://IMSERVER:3009"
+        "ParameterValue": "http://dev-im.mb-ovc.co.uk:3009"
     },
 
     {
         "ParameterKey": "APIPATH",
-        "ParameterValue": "https://IMSERVER:3007"
+        "ParameterValue": "http://dev-im.mb-ovc.co.uk:3007"
     }
 
 
