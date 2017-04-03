@@ -15,7 +15,6 @@ Metadata:
       - SSHKeyPair
       - InstanceType
       - AMIID
-      - POSServerIAMUserSSHAccess
 
 Parameters:
   ParentVPCStack:
@@ -32,13 +31,6 @@ Parameters:
     Description: AMI ID to attach.
     Type: AWS::EC2::Image::Id
     ConstraintDescription: 'The AMI ID that will be attached to the Launch Configuration.'
-  POSServerIAMUserSSHAccess:
-    Description: 'Synchronize public keys of IAM users to enable personalized SSH access (Doc: https://cloudonaut.io/manage-aws-ec2-ssh-access-with-iam/).'
-    Type: String
-    Default: false
-    AllowedValues:
-    - true
-    - false
   MMSGroupId:
     Description: Mongo Group ID.
     Type: String
@@ -72,8 +64,6 @@ Parameters:
       - production
       - other
     ConstraintDescription: 'The type of environment this Mongo is for ie: dev, qa, etc.'
-Conditions:
-  HasIAMUserSSHAccess: !Equals [!Ref POSServerIAMUserSSHAccess, 'true']
 
 Resources:
 
