@@ -101,6 +101,12 @@ Resources:
       - Key: LiveIdentifier
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 22
+        ToPort: 22
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
 
 # Inventory Manager - Empty group to allow MongoDB Security Group Ingress
   InventoryManagerSecurityGroup:
@@ -118,6 +124,12 @@ Resources:
       - Key: LiveIdentifier
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 22
+        ToPort: 22
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
 
 
 # MongoDB Cloud Manager

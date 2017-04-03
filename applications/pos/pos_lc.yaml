@@ -88,6 +88,8 @@ Parameters:
       - qa
       - uat
       - sit
+      - test
+      - rc
       - preproduction
       - production
       - other
@@ -246,12 +248,14 @@ Resources:
 
   OVCPOSServerLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
+    DependsOn: POSServerInstanceProfile
     Properties:
       ImageId: !Ref AMIID
       SecurityGroups:
       - 'Fn::ImportValue': !Sub '${ParentVPCStack}-POSServerSecurityGroup'
       InstanceType: !Ref InstanceType
       KeyName: !Ref SSHKeyPair
+      IamInstanceProfile: !Ref POSServerInstanceProfile
       UserData:
         'Fn::Base64': !Sub |
           #!/bin/bash -x
@@ -280,8 +284,6 @@ Resources:
 
                 export ENV=${ENV}
                 export CUSTOMER=${CUSTOMER}
-
-                #aws s3 cp s3://ovc-travisperkins-whitelist/${ENV}/locationWhiteList.ovccfg /opt/ovc/Application-Dynamic-Objects/Point-Of-Sale/Server-Data/tp-all/config/posMServer/locationWhiteList.ovccfg
 
                 logentries_config() {
                     if hash le 2>/dev/null; then
@@ -322,8 +324,6 @@ Resources:
                 #Hack for accounts where DNS is bawked
                 # for I in `seq 1 254`; do echo 10.0.0.$I ip-10-0-0-$I ip-10-0-0-$I.ec2.local >> /etc/hosts; done
 
-                # sed -i "s/env\:unknown/env:${ENV}/" /etc/dd-agent/conf.d/http_check.yaml
-
                 sed -i "s/env\:UNDEFINED/${ENV}/" /opt/jetty/newrelic/newrelic.yml
 
                 sed -i.bak '/-Dorg\.quartz\.scheduler\.hostName=.*/c\#This line is removed by the admin.' /opt/jetty/start.ini
@@ -347,11 +347,15 @@ Resources:
                 # source auto-userdata.sh
 
                 #Sets app name for newrelic
-                sed -i "s/UNDEFINED/${ENV}/g" /opt/jetty/newrelic-java/newrelic.yml
+                #sed -i "s/UNDEFINED/${ENV}/g" /opt/jetty/newrelic-java/newrelic.yml
 
 
   AutoScalingGroup:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinSuccessfulInstancesPercent: 100
+        PauseTime: PT5M
     Properties:
       LaunchConfigurationName: !Ref OVCPOSServerLaunchConfiguration
       LoadBalancerNames:
@@ -366,6 +370,9 @@ Resources:
       - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivateDB'
       - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivateDB'
       Tags:
+      - Key: Name
+        Value: !Sub '${EnvironmentType}-pos'
+        PropagateAtLaunch: true
       - Key: Role
         Value: POSServer
         PropagateAtLaunch: true
@@ -385,15 +392,15 @@ Resources:
     Type: 'AWS::ElasticLoadBalancing::LoadBalancer'
     Properties:
       Subnets:
+      # - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
       - subnet-c32e3ea7
       - subnet-32e5f444
       - subnet-cce2bf94
-      # - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
       Listeners:
       - InstancePort: 443
-        InstanceProtocol: HTTP
+        InstanceProtocol: SSL
         LoadBalancerPort: 443
-        Protocol: HTTPS
+        Protocol: SSL
         SSLCertificateId: !Ref CertificateId
       HealthCheck:
         HealthyThreshold: 2
@@ -427,6 +434,45 @@ Resources:
       TTL: '60'
       ResourceRecords:
       - !GetAtt LoadBalancer.DNSName
+
+  POSServerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+
+  POSServerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: POSServerRole
+
+  POSServerPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "POSServer"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action: "ec2:DescribeInstances"
+            Resource: "*"
+          -
+            Effect: "Allow"
+            Action: "ec2:DescribeTags"
+            Resource: "*"
+      Roles:
+      - Ref: POSServerRole
 
   POSLoadBalancerCustomerAccessSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
