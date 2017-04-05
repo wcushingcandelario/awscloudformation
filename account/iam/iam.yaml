@@ -66,27 +66,10 @@ Resources:
       Roles:
       - Ref: cfElasticBeanstalkSerivceRole
 
-  cfElasticBeanstalkInstanceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
-        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker'
-      AssumeRolePolicyDocument:
-        Version: '2008-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - ec2.amazonaws.com
-          Action:
-          - sts:AssumeRole
-      Path: "/"
-
-  cfElasticBeanstalkInstanceRolePolicies:
+  cfElasticBeanstalkServiceRolePolicies:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: aws-elasticbeanstalk-instance-role
+      PolicyName: OVCDockerHubAccess
       PolicyDocument:
         '{
             "Version": "2012-10-17",
@@ -106,6 +89,23 @@ Resources:
         '
       Roles:
       - Ref: cfElasticBeanstalkSerivceRole
+
+  cfElasticBeanstalkInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker'
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
 
   ElasticBeanstalkInstanceRoleInstanceProfile:
     Type: AWS::IAM::InstanceProfile
