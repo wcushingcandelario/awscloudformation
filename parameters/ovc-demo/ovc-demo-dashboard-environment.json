@@ -1,0 +1,30 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "ovc-demo"
+     },
+    {
+         "ParameterKey": "POSURL",
+         "ParameterValue": "https://qamysql.ovcdemo.com"
+     },
+    {
+         "ParameterKey": "SQLHOST",
+         "ParameterValue": "mysql-development.ovcdemo.com"
+     },
+    {
+         "ParameterKey": "SQLDB",
+         "ParameterValue": "qamysql_xdb"
+     },
+    {
+         "ParameterKey": "SQLUSER",
+         "ParameterValue": "root"
+     },
+    {
+         "ParameterKey": "SQLPASSWORD",
+         "ParameterValue": "0n3v13w123"
+     },
+    {
+         "ParameterKey": "SSHKeyName",
+         "ParameterValue": "ovc-demo"
+     }
+]
