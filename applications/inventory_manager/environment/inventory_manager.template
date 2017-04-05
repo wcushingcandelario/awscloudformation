@@ -147,8 +147,7 @@ Resources:
             'Fn::ImportValue': ElasticBeanstalkSerivceRole
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
-          Value:
-            'Fn::ImportValue': ElasticBeanstalkInstanceRoleInstanceProfile
+          Value: !Ref ElasticBeanstalkInstanceRoleInstanceProfile
         - Namespace: aws:autoscaling:asg
           OptionName: MinSize
           Value: !Ref MinASGSize
@@ -261,16 +260,95 @@ Resources:
           OptionName: JMS_QUEUE_POS
           Value: !Ref QueuePOStLog
       Tags:
-        - Key: "Role"
-          Value: "InventoryManager"
-        - Key: "Environment"
+        - Key: Role
+          Value: InventoryManager
+        - Key: Environment
           Value: !Ref EnvironmentType
-        - Key: "Project"
+        - Key: Project
           Value:
             'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
         - Key: LiveIdentifier
           Value:
             'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  ElasticBeanstalkInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker'
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+
+  ElasticBeanstalkInstanceRoleInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    DependsOn: ElasticBeanstalkInstanceRole
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: ElasticBeanstalkInstanceRole
+
+  InventoryManagerRolePolicies:
+    Type: "AWS::IAM::Policy"
+    DependsOn: ElasticBeanstalkInstanceRole
+    Properties:
+      PolicyName: InventoryManagerQueuePermissions
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action:
+              - sqs:DeleteMessage
+              - sqs:DeleteMessageBatch
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+              - sqs:SendMessage
+              - sqs:SendMessageBatch
+            Resource:
+              - !GetAtt 'QueueStockExport.Arn'
+              - !GetAtt 'QueueCountExport.Arn'
+              - !GetAtt 'QueueInventoryBalanceExport.Arn'
+              - !GetAtt 'QueueAdjustExport.Arn'
+              - !GetAtt 'QueuePOSubmit.Arn'
+              - !GetAtt 'QueuePOConfirmed.Arn'
+              - !GetAtt 'QueuePOASN.Arn'
+              - !GetAtt 'QueuePOStLog.Arn'
+      Roles:
+      - Ref: ElasticBeanstalkInstanceRole
+
+  ElasticBeanstalkOVCDockerHubPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: OVCDockerHubAccess
+      PolicyDocument:
+        '{
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Example",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetObject"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::ovc-github-access/dockercfg"
+                    ]
+                }
+            ]
+        }
+        '
+      Roles:
+      - Ref: ElasticBeanstalkInstanceRole
 
   QueueStockExport:
     Type: "AWS::SQS::Queue"
@@ -398,18 +476,3 @@ Resources:
 
   QueuePOStLogDLQ:
     Type: "AWS::SQS::Queue"
-
-
-
-  # DNSRecord:
-  #   Type: AWS::Route53::RecordSet
-  #   DependsOn: InventoryManagerServerEnvironment
-  #   Properties:
-  #     HostedZoneId:
-  #       'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerHostedZoneId'
-  #     # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
-  #     Name: !Join ['', [!Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerHostedZoneDomainName']]
-  #     Type: CNAME
-  #     TTL: '60'
-  #     ResourceRecords:
-  #     - !GetAtt InventoryManagerServerEnvironment.EndpointURL
