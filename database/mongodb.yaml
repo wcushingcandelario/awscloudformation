@@ -52,6 +52,21 @@ Parameters:
     Description: Mongo Log Level.
     Type: String
     ConstraintDescription: 'The maximum log file size.'
+  MinimumInstanceCount:
+    Description: Minimum number of instances.
+    Type: Number
+    Default: 1
+    ConstraintDescription: 'The minimum number of instances to run.'
+  MaximumInstanceCount:
+    Description: Maximum number of instances.
+    Type: Number
+    Default: 1
+    ConstraintDescription: 'The maximum number of instances to run.'
+  DesiredInstanceCount:
+    Description: Desired number of instances.
+    Type: Number
+    Default: 1
+    ConstraintDescription: 'The desired number of instances to run.'
   EnvironmentType:
     Description: Environment Type.
     Type: String
@@ -129,9 +144,9 @@ Resources:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       LaunchConfigurationName: !Ref MongoDBCloudManagerLaunchConfiguration
-      MinSize: 1
-      MaxSize: 1
-      DesiredCapacity: 1
+      MinSize: !Ref MinimumInstanceCount
+      MaxSize: !Ref MaximumInstanceCount
+      DesiredCapacity: !Ref DesiredInstanceCount
       Cooldown: 90
       HealthCheckGracePeriod: 300
       VPCZoneIdentifier:
@@ -148,4 +163,11 @@ Resources:
       - Key: Project
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        PropagateAtLaunch: true
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+        PropagateAtLaunch: true
+      - Key: Name
+        Value: !Sub '${EnvironmentType}-mongo'
         PropagateAtLaunch: true

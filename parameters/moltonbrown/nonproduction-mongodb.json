@@ -12,6 +12,10 @@
           "ParameterValue": "t2.micro"
       },
      {
+          "ParameterKey": "EnvironmentType",
+          "ParameterValue": "dev"
+      },
+     {
           "ParameterKey": "AMIID",
           "ParameterValue": "ami-70edb016"
       },
@@ -30,6 +34,18 @@
      {
           "ParameterKey": "MaxLogFiles",
           "ParameterValue": "5"
+      },
+     {
+          "ParameterKey": "MinimumInstanceCount",
+          "ParameterValue": "3"
+      },
+     {
+          "ParameterKey": "MaximumInstanceCount",
+          "ParameterValue": "3"
+      },
+     {
+          "ParameterKey": "DesiredInstanceCount",
+          "ParameterValue": "3"
       },
      {
           "ParameterKey": "MaxLogFileSize",
