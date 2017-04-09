@@ -176,6 +176,16 @@ Resources:
         IpProtocol: tcp
         CidrIp: '4.35.16.128/25'
 
+  MongoCloudManagerInternalInbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: cfMongoDBCloudManagerSecurityGroup
+    Properties:
+      GroupId: !Ref cfMongoDBCloudManagerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 27000
+      ToPort: 27020
+      SourceSecurityGroupId: !Ref cfMongoDBCloudManagerSecurityGroup
+
 # Bastion Host
 
   cfBastionHostSecurityGroup:
