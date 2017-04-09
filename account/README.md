@@ -32,6 +32,15 @@ Steps Needed for Full Environment:
 1. Setup email for the domain that was registered.  This is needed in order to provision a certificate.
 1. Create a key pair
 
+## IAM Roles
+### Cross Account Roles
+The following roles are created to allow `Cross Account` access to the OVC main AWS AccountId 748109554602.  These roles can be used by logging into the main OVC AWS account and assuming the roles created by the template:
+
+* ReadOnlyCrossAccount - A read only role
+* AdminCrossAccount - An administrator role
+### Service Roles
+The `iam.yaml` template will create the basic IAM servic and instance roles needed by ElasticBeanstalk for deployment and enhanced monitoring.  The template will also create the roles needed by RDS for enhanced monitoring.
+
 ### Steps to allow Elastic Beanstalk access to Docker Hub credentials
 http://docs.aws.amazon.com/AmazonS3/latest/dev/example-walkthroughs-managing-access-example2.html
 Add the following S3 bucket polciy to the `OVC Demo` account's `ovc-github-access` S3 bucket.  If a policy exists, it will need to be updated to take into account the newly created AWS account you are trying to provide access to.

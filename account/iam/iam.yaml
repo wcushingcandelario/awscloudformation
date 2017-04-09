@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Security: Base IAM Roles including cross account to OVC Main'
 Resources:
   cfElasticBeanstalkSerivceRole:
     Type: AWS::IAM::Role
@@ -126,6 +127,38 @@ Resources:
           Principal:
             Service: 'rds.amazonaws.com'
           Action: 'sts:AssumeRole'
+
+  ReadOnlyCrossAccount:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns:
+      - 'arn:aws:iam::aws:policy/ReadOnlyAccess'
+      Path: /
+      RoleName: ReadOnlyCrossAccount
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: 'arn:aws:iam::748109554602:root'
+            Action:
+              - 'sts:AssumeRole'
+
+  AdminCrossAccount:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns:
+      - 'arn:aws:iam::aws:policy/AdministratorAccess'
+      Path: /
+      RoleName: AdminCrossAccount
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: 'arn:aws:iam::748109554602:root'
+            Action:
+              - 'sts:AssumeRole'
 
 Outputs:
   ElasticBeanstalkSerivceRole:
