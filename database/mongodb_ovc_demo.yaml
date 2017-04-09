@@ -6,20 +6,14 @@ Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
     - Label:
-        default: 'VPC Parent Stack'
-      Parameters:
-      - ParentVPCStack
-    - Label:
         default: 'Launch Configuration Details'
       Parameters:
       - SSHKeyPair
       - InstanceType
       - AMIID
+      - POSServerIAMUserSSHAccess
 
 Parameters:
-  ParentVPCStack:
-    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
-    Type: String
   SSHKeyPair:
     Description: 'Name of the SSH Key in AWS to use.'
     Type: AWS::EC2::KeyPair::KeyName
@@ -31,6 +25,13 @@ Parameters:
     Description: AMI ID to attach.
     Type: AWS::EC2::Image::Id
     ConstraintDescription: 'The AMI ID that will be attached to the Launch Configuration.'
+  POSServerIAMUserSSHAccess:
+    Description: 'Synchronize public keys of IAM users to enable personalized SSH access (Doc: https://cloudonaut.io/manage-aws-ec2-ssh-access-with-iam/).'
+    Type: String
+    Default: false
+    AllowedValues:
+    - true
+    - false
   MMSGroupId:
     Description: Mongo Group ID.
     Type: String
@@ -52,21 +53,6 @@ Parameters:
     Description: Mongo Log Level.
     Type: String
     ConstraintDescription: 'The maximum log file size.'
-  MinimumInstanceCount:
-    Description: Minimum number of instances.
-    Type: Number
-    Default: 1
-    ConstraintDescription: 'The minimum number of instances to run.'
-  MaximumInstanceCount:
-    Description: Maximum number of instances.
-    Type: Number
-    Default: 1
-    ConstraintDescription: 'The maximum number of instances to run.'
-  DesiredInstanceCount:
-    Description: Desired number of instances.
-    Type: Number
-    Default: 1
-    ConstraintDescription: 'The desired number of instances to run.'
   EnvironmentType:
     Description: Environment Type.
     Type: String
@@ -79,6 +65,8 @@ Parameters:
       - production
       - other
     ConstraintDescription: 'The type of environment this Mongo is for ie: dev, qa, etc.'
+Conditions:
+  HasIAMUserSSHAccess: !Equals [!Ref POSServerIAMUserSSHAccess, 'true']
 
 Resources:
 
@@ -86,8 +74,11 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: !Ref AMIID
+      AssociatePublicIpAddress: true
       SecurityGroups:
-      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-MongoDBCloudManagerSecurityGroup'
+        - sg-388baf45
+        - sg-eeecf389
+        - sg-d62d05ae
       InstanceType: !Ref InstanceType
       KeyName: !Ref SSHKeyPair
       UserData:
@@ -131,7 +122,7 @@ Resources:
         2_config_setup:
           commands:
             'configure_data_dir':
-              command: 'mkdir /data; chown -R mongod:mongod /data'
+              command: 'touch /data; chown -R mongod:mongod /data && hostname `hostname`'
         3_service_setup:
           services:
             sysvinit:
@@ -144,30 +135,17 @@ Resources:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       LaunchConfigurationName: !Ref MongoDBCloudManagerLaunchConfiguration
-      MinSize: !Ref MinimumInstanceCount
-      MaxSize: !Ref MaximumInstanceCount
-      DesiredCapacity: !Ref DesiredInstanceCount
+      MinSize: 1
+      MaxSize: 5
+      DesiredCapacity: 3
       Cooldown: 90
       HealthCheckGracePeriod: 300
       VPCZoneIdentifier:
-      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivateDB'
-      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivateDB'
-      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivateDB'
+        - subnet-9f8a92b7
       Tags:
       - Key: Role
         Value: mongodb
         PropagateAtLaunch: true
       - Key: Environment
         Value: !Ref EnvironmentType
-        PropagateAtLaunch: true
-      - Key: Project
-        Value:
-          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
-        PropagateAtLaunch: true
-      - Key: LiveIdentifier
-        Value:
-          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
-        PropagateAtLaunch: true
-      - Key: Name
-        Value: !Sub '${EnvironmentType}-mongo'
         PropagateAtLaunch: true
