@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+     {
+          "ParameterKey": "CustomerGatewayIpAddress",
+          "ParameterValue": "109.174.133.162"
+      },
+     {
+          "ParameterKey": "DestinationCidrBlock",
+          "ParameterValue": "10.0.0.0/12"
+      },
+     {
+          "ParameterKey": "DestinationName",
+          "ParameterValue": "mb-greenestreet"
+      }
+]

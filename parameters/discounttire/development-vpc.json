@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ClassA",
+         "ParameterValue": "10"
+     },
+    {
+         "ParameterKey": "ClassB",
+         "ParameterValue": "208"
+     },
+    {
+         "ParameterKey": "ProjectName",
+         "ParameterValue": "ovc-dt"
+     },
+    {
+         "ParameterKey": "LiveIdentifier",
+         "ParameterValue": "development"
+     }
+]
