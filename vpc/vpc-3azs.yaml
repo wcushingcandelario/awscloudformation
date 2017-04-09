@@ -39,6 +39,8 @@ Parameters:
     Type: String
     Default: 'nonproduction'
     AllowedValues:
+      - development
+      - stage
       - nonproduction
       - production
     ConstraintDescription: 'Must be a string of either "nonproduction" or "production" to indicate the resources lifecycle state.'

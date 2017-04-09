@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Network: Primary VPN Configuration to a Customer Gateway.'
+Description: 'Network: Secondary VPN Configuration to a Customer Gateway.'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -50,37 +50,14 @@ Resources:
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
 
-  VPNGateway:
-    #Virtual Private Gateway
-    Type: AWS::EC2::VPNGateway
-    Properties:
-      Type: ipsec.1
-      Tags:
-      - Key: Name
-        Value: !Sub '${ParentVPCStack}-VPNGateway'
-      - Key: Project
-        Value:
-          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
-      - Key: LiveIdentifier
-        Value:
-          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
-
-  AttachVpnGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    DependsOn: VPNGateway
-    Properties:
-      VpcId:
-        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
-      VpnGatewayId: !Ref VPNGateway
-
   VPNConnection:
     Type: AWS::EC2::VPNConnection
-    DependsOn: VPNGateway
     Properties:
       Type: ipsec.1
       StaticRoutesOnly: true
       CustomerGatewayId: !Ref CustomerGateway
-      VpnGatewayId: !Ref VPNGateway
+      VpnGatewayId:
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-VPNGateway'
       Tags:
       - Key: Name
         Value: !Sub '${ParentVPCStack}-VPNConnection-to-${DestinationName}'
@@ -100,7 +77,8 @@ Resources:
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateA'
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateB'
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateC'
-      VpnGatewayId: !Ref VPNGateway
+      VpnGatewayId:
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-VPNGateway'
 
   VPNConnectionRoute:
     Type: AWS::EC2::VPNConnectionRoute
@@ -115,11 +93,6 @@ Outputs:
     Value: !Ref CustomerGateway
     Export:
       Name: !Sub '${ParentVPCStack}-CustomerGateway-to-${DestinationName}'
-  VPNGateway:
-    Description: VPN Gateway
-    Value: !Ref VPNGateway
-    Export:
-      Name: !Sub '${ParentVPCStack}-VPNGateway'
   VPNConnection:
     Description: VPN Connection
     Value: !Ref VPNConnection
