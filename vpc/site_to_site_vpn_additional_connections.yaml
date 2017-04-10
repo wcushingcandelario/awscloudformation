@@ -57,7 +57,7 @@ Resources:
       StaticRoutesOnly: true
       CustomerGatewayId: !Ref CustomerGateway
       VpnGatewayId:
-        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-VPNGateway'
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPNGateway'
       Tags:
       - Key: Name
         Value: !Sub '${ParentVPCStack}-VPNConnection-to-${DestinationName}'
@@ -78,7 +78,7 @@ Resources:
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateB'
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateC'
       VpnGatewayId:
-        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-VPNGateway'
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPNGateway'
 
   VPNConnectionRoute:
     Type: AWS::EC2::VPNConnectionRoute
