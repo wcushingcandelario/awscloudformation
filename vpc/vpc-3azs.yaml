@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'VPC Template: public and private subnets in three AZs, including NAT gateways in each public subnet with private subnets having egress through the NAT gateway in its AZ.'
+Description: 'VPC Template: public and private subnets in three AZs, including NAT gateways in each public subnet with private subnets having egress through the NAT gateway in its AZ. S3 endpoints for all AZs.'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -43,7 +43,7 @@ Parameters:
       - stage
       - nonproduction
       - production
-    ConstraintDescription: 'Must be a string of either "nonproduction" or "production" to indicate the resources lifecycle state.'
+    ConstraintDescription: 'Must be a string matching the available selections to indicate the resources lifecycle state.'
 Conditions:
   IsProduction: !Equals [ !Ref LiveIdentifier, production ]
 
