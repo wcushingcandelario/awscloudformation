@@ -5,6 +5,28 @@ Parameters:
   ParentVPCStack:
     Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
     Type: String
+  CustomerGatewayABGPAsn:
+    Description: 'The stomer Gateway As BGP ASN.'
+    Type: Number
+  CustomerGatewayAIP:
+    Description: 'Customer Gateway A IP Address.'
+    Type: String
+    AllowedPattern: '^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)'
+    ConstraintDescription: 'Must be a valid IP address.'
+  CustomerGatewayAName:
+    Description: 'Customer Gateway A Name.'
+    Type: String
+  CustomerGatewayBBGPAsn:
+    Description: 'The Customer Gateway Bs BGP ASN.'
+    Type: Number
+  CustomerGatewayBIP:
+    Description: 'Customer Gateway B IP Address.'
+    Type: String
+    AllowedPattern: '^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)'
+    ConstraintDescription: 'Must be a valid IP address.'
+  CustomerGatewayBName:
+    Description: 'Customer Gateway B Name.'
+    Type: String
 
 Resources:
 
@@ -30,3 +52,79 @@ Resources:
       VpcId:
         'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
       VpnGatewayId: !Ref VPNGateway
+
+  VPNGatewayRoutePropagation:
+    Type: AWS::EC2::VPNGatewayRoutePropagation
+    Properties:
+      RouteTableIds:
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePublic'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateA'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateB'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePrivateC'
+      VpnGatewayId: !Ref VPNGateway
+
+  CustomerGatewayA:
+    Type: AWS::EC2::CustomerGateway
+    Properties:
+      Type: ipsec.1
+      BgpAsn: !Ref CustomerGatewayABGPAsn
+      IpAddress: !Ref CustomerGatewayAIP
+      Tags:
+      - Key: Name
+        Value: !Ref CustomerGatewayAName
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  CustomerGatewayB:
+    Type: AWS::EC2::CustomerGateway
+    Properties:
+      Type: ipsec.1
+      BgpAsn: !Ref CustomerGatewayBBGPAsn
+      IpAddress: !Ref CustomerGatewayBIP
+      Tags:
+      - Key: Name
+        Value: !Ref CustomerGatewayBName
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  VPNConnection1:
+    Type: AWS::EC2::VPNConnection
+    DependsOn: VPNGateway
+    Properties:
+      Type: ipsec.1
+      CustomerGatewayId: !Ref CustomerGatewayA
+      VpnGatewayId: !Ref VPNGateway
+      Tags:
+      - Key: Name
+        Value: Inspect-PaloAlto-w2a
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  VPNConnection2:
+    Type: AWS::EC2::VPNConnection
+    DependsOn: VPNGateway
+    Properties:
+      Type: ipsec.1
+      CustomerGatewayId: !Ref CustomerGatewayB
+      VpnGatewayId: !Ref VPNGateway
+      Tags:
+      - Key: Name
+        Value: Inspect-PaloAlto-w2b
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'

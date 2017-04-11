@@ -2,5 +2,29 @@
     {
          "ParameterKey": "ParentVPCStack",
          "ParameterValue": "ovcdevelopment"
+     },
+    {
+         "ParameterKey": "CustomerGatewayABGPAsn",
+         "ParameterValue": "65001"
+     },
+    {
+         "ParameterKey": "CustomerGatewayBBGPAsn",
+         "ParameterValue": "65001"
+     },
+    {
+         "ParameterKey": "CustomerGatewayAIP",
+         "ParameterValue": "52.11.245.254"
+     },
+    {
+         "ParameterKey": "CustomerGatewayBIP",
+         "ParameterValue": "52.40.226.57"
+     },
+    {
+         "ParameterKey": "CustomerGatewayAName",
+         "ParameterValue": "Inspect-PaloAlto-w2a"
+     },
+    {
+         "ParameterKey": "CustomerGatewayBName",
+         "ParameterValue": "Inspect-PaloAlto-w2b"
      }
 ]
