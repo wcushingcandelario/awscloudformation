@@ -128,3 +128,10 @@ Resources:
       - Key: LiveIdentifier
         Value:
           'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+Outputs:
+  VPNGateway:
+    Description: VPN Gateway
+    Value: !Ref VPNGateway
+    Export:
+      Name: !Sub '${ParentVPCStack}-VPNGateway'

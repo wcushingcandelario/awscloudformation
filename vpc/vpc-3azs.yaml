@@ -34,6 +34,14 @@ Parameters:
     Description: 'Project or Customer name for billing purposes.'
     Type: String
     ConstraintDescription: 'Must be a string matching the project or customer name for tagging purposes.  This will be attached to all resources in the VPC.'
+  CreateInternetGateway:
+    Description: 'Boolean indicating whether or not to create an Internet Gateway.'
+    Type: String
+    Default: true
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: 'Must be a string matching the project or customer name for tagging purposes.  This will be attached to all resources in the VPC.'
   LiveIdentifier:
     Description: 'Indicator for "nonproduction" or "production" resources.'
     Type: String
@@ -46,6 +54,7 @@ Parameters:
     ConstraintDescription: 'Must be a string matching the available selections to indicate the resources lifecycle state.'
 Conditions:
   IsProduction: !Equals [ !Ref LiveIdentifier, production ]
+  CreateInternetGatewayBoolean: !Equals [ !Ref CreateInternetGateway, true ]
 
 Resources:
   VPC:
@@ -64,6 +73,7 @@ Resources:
         Value: !Sub '${LiveIdentifier}'
   InternetGateway:
     Type: 'AWS::EC2::InternetGateway'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       Tags:
       - Key: Name
@@ -74,6 +84,7 @@ Resources:
         Value: !Sub '${LiveIdentifier}'
   VPCGatewayAttachment:
     Type: 'AWS::EC2::VPCGatewayAttachment'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
@@ -306,6 +317,7 @@ Resources:
       RouteTableId: !Ref RouteTablePrivateC
   RouteTablePublicInternetRoute:
     Type: 'AWS::EC2::Route'
+    Condition: CreateInternetGatewayBoolean
     DependsOn: VPCGatewayAttachment
     Properties:
       RouteTableId: !Ref RouteTablePublic
@@ -619,3 +631,8 @@ Outputs:
     Value: !Ref EIPC
     Export:
       Name: !Sub '${AWS::StackName}-NATGatewayEIPC'
+  CreateInternetGateway:
+    Description: 'Create Internet Gateway Boolean'
+    Value: !Ref CreateInternetGateway
+    Export:
+      Name: !Sub '${AWS::StackName}-CreateInternetGateway'

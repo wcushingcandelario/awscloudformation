@@ -14,5 +14,9 @@
     {
          "ParameterKey": "LiveIdentifier",
          "ParameterValue": "development"
+     },
+    {
+         "ParameterKey": "CreateInternetGateway",
+         "ParameterValue": "false"
      }
 ]
