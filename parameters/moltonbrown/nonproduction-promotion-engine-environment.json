@@ -29,10 +29,6 @@
     {
         "ParameterKey": "PROMOPATHPROTOCOL",
         "ParameterValue": "http"
-    },
-    {
-        "ParameterKey": "PROMOPATHHOSTNAME",
-        "ParameterValue": "pe-dev"
     }
 
 ]

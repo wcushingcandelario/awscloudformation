@@ -93,11 +93,15 @@ Parameters:
       - http
       - https
     ConstraintDescription: Specify the Protocol for the Promotion Engine.
-  PROMOPATHHOSTNAME:
-    Description: Promo Engine Hostname.
+  NewRelicLicenseKey:
+    Description: NewRelic license key.
     Type: String
-    ConstraintDescription: 'Specify the Hostname for the Promotion Engine. eg. http://HOSTNAME.domain.com'
-
+    Default: ''
+Conditions:
+  NewRelicKeyPresent: !Not
+    - !Equals
+      - ''
+      - !Ref NewRelicLicenseKey
 
 Resources:
   PromotionServerEnvironment:
@@ -138,6 +142,26 @@ Resources:
           OptionName: EC2KeyName
           Value: !Ref SSHKeyName
 
+          # NewRelic Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LICENSE_KEY
+          VeyName: !If
+            - NewRelicKeyPresent
+            - !Ref NewRelicLicenseKey
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_APP_NAME
+          VeyName: !If
+            - NewRelicKeyPresent
+            - !Sub '${EnvironmentType}-pe'
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LOG
+          VeyName: !If
+            - NewRelicKeyPresent
+            - '/var/log/newrelic_agent.log'
+            - !Ref 'AWS::NoValue'
+
           # Environment Variables
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: MONGO_URL
@@ -153,20 +177,7 @@ Resources:
           Value: !Ref OVCURL
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: PROMO_PATH
-          Value: !Join ['', [!Ref 'PROMOPATHPROTOCOL', '://', !Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneDomainName']]
-
-  # DNSRecord:
-  #   Type: AWS::Route53::RecordSet
-  #   DependsOn: PromotionServerEnvironment
-  #   Properties:
-  #     HostedZoneId:
-  #       'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneId'
-  #     # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
-  #     Name: !Join ['', [!Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneDomainName']]
-  #     Type: CNAME
-  #     TTL: '60'
-  #     ResourceRecords:
-  #     - !GetAtt PromotionServerEnvironment.EndpointURL
+          Value: !Join ['', [!Ref 'PROMOPATHPROTOCOL', '://', !Sub '${EnvironmentType}-pe', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneDomainName']]
 
       Tags:
         - Key: "Role"
@@ -179,3 +190,15 @@ Resources:
         - Key: LiveIdentifier
           Value:
             'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: PromotionServerEnvironment
+    Properties:
+      HostedZoneId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneId'
+      Name: !Join ['', [!Sub '${EnvironmentType}-pe', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-PromotionEngineHostedZoneDomainName']]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt PromotionServerEnvironment.EndpointURL
