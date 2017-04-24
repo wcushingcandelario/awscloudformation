@@ -65,7 +65,7 @@ Resources:
       - Namespace: aws:ec2:vpc
         OptionName: Subnets
         Value:
-          'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPrivate'
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsAppPrivate'
       - Namespace: aws:ec2:vpc
         OptionName: ELBSubnets
         Value:
