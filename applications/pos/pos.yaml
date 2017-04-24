@@ -504,23 +504,23 @@ Resources:
               - sqs:SendMessage
               - sqs:SendMessageBatch
             Resource:
-              - !GetAtt 'QueuePOSTransactions.Arn'
+              - !GetAtt 'QueueTLogs.Arn'
       Roles:
       - Ref: POSServerRole
 
-  QueuePOSTransactions:
+  QueueTLogs:
     Type: "AWS::SQS::Queue"
-    DependsOn: QueuePOSTransactionsDLQ
+    DependsOn: QueueTLogsDLQ
     Properties:
       MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
       RedrivePolicy:
         deadLetterTargetArn:
           Fn::GetAtt:
-            - "QueuePOSTransactionsDLQ"
+            - "QueueTLogsDLQ"
             - "Arn"
         maxReceiveCount: !Ref MaxReceiveCountSetting
 
-  QueuePOSTransactionsDLQ:
+  QueueTLogsDLQ:
     Type: "AWS::SQS::Queue"
 
   POSLoadBalancerCustomerAccessSecurityGroup:
