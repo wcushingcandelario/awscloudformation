@@ -378,9 +378,9 @@ Resources:
       Cooldown: 240
       HealthCheckGracePeriod: 300
       VPCZoneIdentifier:
-      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivateDB'
-      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivateDB'
-      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivateDB'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPrivate'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPrivate'
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPrivate'
       Tags:
       - Key: Name
         Value: !Sub '${EnvironmentType}-pos'
