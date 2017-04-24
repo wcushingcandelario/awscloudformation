@@ -542,10 +542,20 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-SubnetsPublic'
   SubnetsPrivate:
-    Description: 'Subnets private.'
+    Description: 'All private subnets.'
     Value: !Join [',', [!Ref SubnetAPrivate, !Ref SubnetAPrivateDB, !Ref SubnetBPrivate, !Ref SubnetBPrivateDB, !Ref SubnetCPrivate, !Ref SubnetCPrivateDB]]
     Export:
       Name: !Sub '${AWS::StackName}-SubnetsPrivate'
+  SubnetsAppPrivate:
+    Description: 'App private subnets.'
+    Value: !Join [',', [!Ref SubnetAPrivate, !Ref SubnetBPrivate, !Ref SubnetCPrivate]]
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetsAppPrivate'
+  SubnetsDBPrivate:
+    Description: 'DB private subnets.'
+    Value: !Join [',', [!Ref SubnetAPrivateDB, !Ref SubnetBPrivateDB, !Ref SubnetCPrivateDB]]
+    Export:
+      Name: !Sub '${AWS::StackName}-SubnetsDBPrivate'
   RouteTablePrivateA:
     Description: 'Route table private A.'
     Value: !Ref RouteTablePrivateA
