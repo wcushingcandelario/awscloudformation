@@ -2,13 +2,5 @@
     {
          "ParameterKey": "ParentVPCStack",
          "ParameterValue": "nonproduction"
-     },
-     {
-          "ParameterKey": "HostedZoneId",
-          "ParameterValue": "Z1F1Y0GUYLTJLJ"
-      },
-     {
-          "ParameterKey": "HostedZoneDomainName",
-          "ParameterValue": "mb-ovc.co.uk"
-      }
+     }
 ]
