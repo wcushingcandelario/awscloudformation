@@ -563,7 +563,7 @@ Outputs:
       Name: !Sub '${AWS::StackName}-RouteTablePrivateA'
   RouteTablePrivateB:
     Description: 'Route table private B.'
-    Value: !Ref RouteTablePrivateA
+    Value: !Ref RouteTablePrivateB
     Export:
       Name: !Sub '${AWS::StackName}-RouteTablePrivateB'
   RouteTablePrivateC:
