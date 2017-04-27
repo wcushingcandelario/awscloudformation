@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Development promotion environment template.'
+Description: 'Application: Promotion Engine ElasticBeanstalk environment template.'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -143,6 +143,12 @@ Resources:
         - Namespace: aws:elasticbeanstalk:environment
           OptionName: EnvironmentType
           Value: LoadBalanced
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateEnabled
+          Value: true
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateType
+          Value: Health
 
         # VPC Network Settings
         - Namespace: aws:ec2:vpc
@@ -200,19 +206,19 @@ Resources:
           # NewRelic Variables
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: NEW_RELIC_LICENSE_KEY
-          VeyName: !If
+          Value: !If
             - NewRelicKeyPresent
             - !Ref NewRelicLicenseKey
             - !Ref 'AWS::NoValue'
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: NEW_RELIC_APP_NAME
-          VeyName: !If
+          Value: !If
             - NewRelicKeyPresent
             - !Sub '${EnvironmentType}-pe'
             - !Ref 'AWS::NoValue'
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: NEW_RELIC_LOG
-          VeyName: !If
+          Value: !If
             - NewRelicKeyPresent
             - '/var/log/newrelic_agent.log'
             - !Ref 'AWS::NoValue'

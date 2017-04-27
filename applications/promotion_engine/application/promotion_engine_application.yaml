@@ -1,15 +1,6 @@
+---
 AWSTemplateFormatVersion: '2010-09-09'
-Metadata:
-  'AWS::CloudFormation::Interface':
-    ParameterGroups:
-    - Label:
-        default: 'VPC Parent Stack'
-      Parameters:
-      - ParentVPCStack
-Parameters:
-  ParentVPCStack:
-    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
-    Type: String
+Description: 'Promotion Engine ElasticBeanstalk application template.'
 
 Resources:
 

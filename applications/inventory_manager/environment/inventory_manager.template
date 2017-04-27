@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Inventory Manager ElasticBeanstalk environment template.'
+Description: 'Application: Inventory Manager ElasticBeanstalk environment template.'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -118,6 +118,20 @@ Parameters:
     MaxValue: 25
     Default: 5
     ConstraintDescription: Must be less than or equal to 25.
+  NewRelicLicenseKey:
+    Description: NewRelic license key.
+    Type: String
+    Default: ''
+  SolutionStackName:
+    Description: 'The solution stack used'
+    Type: String
+    Default: '64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)'
+
+Conditions:
+  NewRelicKeyPresent: !Not
+    - !Equals
+      - ''
+      - !Ref NewRelicLicenseKey
 
 Resources:
   InventoryManagerServerEnvironment:
@@ -133,11 +147,10 @@ Resources:
     - QueuePOStLog
     Properties:
       ApplicationName:
-        'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerApplication'
+        'Fn::ImportValue': InventoryManagerApplication
       Description: Inventory Manager
       EnvironmentName: !Sub '${EnvironmentType}-im'
-      TemplateName:
-        'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerConfigurationTemplate'
+      SolutionStackName: !Ref SolutionStackName
       OptionSettings:
 
         # Environment Settings
@@ -154,6 +167,37 @@ Resources:
         - Namespace: aws:autoscaling:asg
           OptionName: MaxSize
           Value: !Ref MaxASGSize
+
+        # Scaling Settings
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+
+        # VPC Network Settings
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsAppPrivate'
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
+        - Namespace: aws:ec2:vpc
+          OptionName: AssociatePublicIpAddress
+          Value: false
+
+        # Settings
+        - Namespace: aws:elasticbeanstalk:healthreporting:system
+          OptionName: SystemType
+          Value: enhanced
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-InventoryManagerSecurityGroup'
 
           # ELB Settings
         - Namespace: aws:elb:loadbalancer
@@ -259,6 +303,26 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: JMS_QUEUE_POS
           Value: !Ref QueuePOStLog
+
+          # NewRelic Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LICENSE_KEY
+          Value: !If
+            - NewRelicKeyPresent
+            - !Ref NewRelicLicenseKey
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_APP_NAME
+          Value: !If
+            - NewRelicKeyPresent
+            - !Sub '${EnvironmentType}-im'
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LOG
+          Value: !If
+            - NewRelicKeyPresent
+            - '/var/log/newrelic_agent.log'
+            - !Ref 'AWS::NoValue'
       Tags:
         - Key: Role
           Value: InventoryManager

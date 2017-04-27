@@ -3,6 +3,14 @@
         "ParameterValue": "nonproduction"
     },
     {
+         "ParameterKey": "HostedZoneId",
+         "ParameterValue": "Z1F1Y0GUYLTJLJ"
+     },
+    {
+         "ParameterKey": "HostedZoneDomainName",
+         "ParameterValue": "mb-ovc.co.uk"
+     },
+    {
         "ParameterKey": "EnvironmentType",
         "ParameterValue": "dev"
     },
@@ -68,6 +76,10 @@
     {
         "ParameterKey": "APIPATH",
         "ParameterValue": "http://dev-im.mb-ovc.co.uk:3007"
+    },
+   {
+        "ParameterKey": "NewRelicLicenseKey",
+        "ParameterValue": "95a41dcefa87d72a517e9604b3ff2cac24164e2c"
     }
 
 

@@ -37,6 +37,10 @@
     {
          "ParameterKey": "HostedZoneDomainName",
          "ParameterValue": "mb-ovc.co.uk"
+     },
+    {
+         "ParameterKey": "NewRelicLicenseKey",
+         "ParameterValue": "95a41dcefa87d72a517e9604b3ff2cac24164e2c"
      }
 
 ]
