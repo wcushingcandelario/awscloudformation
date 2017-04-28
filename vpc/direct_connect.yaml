@@ -27,6 +27,15 @@ Parameters:
   CustomerGatewayBName:
     Description: 'Customer Gateway B Name.'
     Type: String
+  RoutePropagation:
+    Description: 'Boolean indicating whether route propagation should be used.'
+    Default: true
+    AllowedValues:
+      - true
+      - false
+
+Conditions:
+  RoutePropagationBoolean: !Equals [ !Ref RoutePropagation, true ]
 
 Resources:
 
@@ -55,6 +64,8 @@ Resources:
 
   VPNGatewayRoutePropagation:
     Type: AWS::EC2::VPNGatewayRoutePropagation
+    Condition: RoutePropagation
+    DependsOn: VPNGateway
     Properties:
       RouteTableIds:
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-RouteTablePublic'

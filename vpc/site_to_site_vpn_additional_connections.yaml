@@ -31,6 +31,15 @@ Parameters:
     Description: 'A uniquely identifiable name to identify this group of resources. Will be prepended by "-to-"'
     Type: String
     ConstraintDescription: 'No spaces, periods, special characters, eg: "ovc-office".'
+  RoutePropagation:
+    Description: 'Boolean indicating whether route propagation should be used.'
+    Default: true
+    AllowedValues:
+      - true
+      - false
+
+Conditions:
+  RoutePropagationBoolean: !Equals [ !Ref RoutePropagation, true ]
 
 Resources:
 
@@ -70,6 +79,7 @@ Resources:
 
   VPNGatewayRoutePropagation:
     Type: AWS::EC2::VPNGatewayRoutePropagation
+    Condition: RoutePropagationBoolean
     DependsOn: VPNConnection
     Properties:
       RouteTableIds:
