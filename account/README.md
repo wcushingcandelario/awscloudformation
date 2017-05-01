@@ -66,23 +66,13 @@ Add the following S3 bucket polciy to the `OVC Demo` account's `ovc-github-acces
 }
 ```
 
-TODO: Add to CloudFormation
+After adding or updating the bucket policy in the `OVCDemo` AWS account, the `iam.yaml` template will automatically create the appropriate policy allowing ElasticBeanstalk permission to read the credentials file from above.  Nothing more is needed other than to run the `iam.yaml` template.
 
-Next, add the following policy to the ElasticBeanstalk INSTANCE role:
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "Example",
-            "Effect": "Allow",
-            "Action": [
-                "s3:GetObject"
-            ],
-            "Resource": [
-                "arn:aws:s3:::ovc-github-access/dockercfg"
-            ]
-        }
-    ]
-}
-```
+### Account configurations
+The `configurations` folder contains stacks that need be created only once per account.
+
+##### cloudtrail.yaml
+This stack enables CloudTrail is all regions.
+
+##### config.yaml
+This stack enables AWS Config in the current region to store the default configuration settings.  This can be expanded on by later stacks that create AWS Config rules.  Enabling it only need be done once.
