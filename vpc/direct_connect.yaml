@@ -30,6 +30,7 @@ Parameters:
   RoutePropagation:
     Description: 'Boolean indicating whether route propagation should be used.'
     Default: true
+    Type: String
     AllowedValues:
       - true
       - false
@@ -64,7 +65,7 @@ Resources:
 
   VPNGatewayRoutePropagation:
     Type: AWS::EC2::VPNGatewayRoutePropagation
-    Condition: RoutePropagation
+    Condition: RoutePropagationBoolean
     DependsOn: VPNGateway
     Properties:
       RouteTableIds:

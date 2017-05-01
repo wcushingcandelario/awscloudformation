@@ -26,9 +26,5 @@
     {
          "ParameterKey": "CustomerGatewayBName",
          "ParameterValue": "Inspect-PaloAlto-w2b"
-     },
-    {
-         "ParameterKey": "RoutePropagation",
-         "ParameterValue": "false"
      }
 ]

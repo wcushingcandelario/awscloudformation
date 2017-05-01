@@ -34,6 +34,7 @@ Parameters:
   RoutePropagation:
     Description: 'Boolean indicating whether route propagation should be used.'
     Default: true
+    Type: String
     AllowedValues:
       - true
       - false
@@ -92,7 +93,6 @@ Resources:
 
   VPNConnectionRoute:
     Type: AWS::EC2::VPNConnectionRoute
-    DependsOn: VPNGatewayRoutePropagation
     Properties:
       DestinationCidrBlock: !Ref DestinationCidrBlock
       VpnConnectionId: !Ref VPNConnection
@@ -108,11 +108,6 @@ Outputs:
     Value: !Ref VPNConnection
     Export:
       Name: !Sub '${ParentVPCStack}-VPNConnection-to-${DestinationName}'
-  VPNConnectionRoute:
-    Description: VPN Connection Route
-    Value: !Ref VPNConnectionRoute
-    Export:
-      Name: !Sub '${ParentVPCStack}-VPNConnectionRoute-to-${DestinationName}'
   DestinationCidrBlock:
     Description: The customers CIDR block routed over VPN
     Value: !Ref DestinationCidrBlock

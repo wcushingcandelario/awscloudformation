@@ -35,7 +35,7 @@ Parameters:
     Type: String
     ConstraintDescription: 'Must be a string matching the project or customer name for tagging purposes.  This will be attached to all resources in the VPC.'
   CreateInternetGateway:
-    Description: 'Boolean indicating whether or not to create an Internet Gateway.'
+    Description: 'Boolean indicating whether or not to create an Internet Gateway and the associated components (NAT Gateway, EIPs, etc).  When set to false, a completely private network is built with no internet access.'
     Type: String
     Default: true
     AllowedValues:
@@ -437,45 +437,54 @@ Resources:
       VpcId: !Ref VPC
   EIPA:
     Type: 'AWS::EC2::EIP'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       Domain: vpc
   EIPB:
     Type: 'AWS::EC2::EIP'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       Domain: vpc
   EIPC:
     Type: 'AWS::EC2::EIP'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       Domain: vpc
   NatGatewayA:
     Type: 'AWS::EC2::NatGateway'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       AllocationId: !GetAtt 'EIPA.AllocationId'
       SubnetId: !Ref SubnetAPublic
   NatGatewayB:
     Type: 'AWS::EC2::NatGateway'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       AllocationId: !GetAtt 'EIPB.AllocationId'
       SubnetId: !Ref SubnetBPublic
   NatGatewayC:
     Type: 'AWS::EC2::NatGateway'
+    Condition: CreateInternetGatewayBoolean
     Properties:
       AllocationId: !GetAtt 'EIPC.AllocationId'
       SubnetId: !Ref SubnetCPublic
   RouteA:
     Type: AWS::EC2::Route
+    Condition: CreateInternetGatewayBoolean
     Properties:
       RouteTableId: !Ref RouteTablePrivateA
       DestinationCidrBlock: '0.0.0.0/0'
       NatGatewayId: !Ref NatGatewayA
   RouteB:
     Type: AWS::EC2::Route
+    Condition: CreateInternetGatewayBoolean
     Properties:
       RouteTableId: !Ref RouteTablePrivateB
       DestinationCidrBlock: '0.0.0.0/0'
       NatGatewayId: !Ref NatGatewayB
   RouteC:
     Type: AWS::EC2::Route
+    Condition: CreateInternetGatewayBoolean
     Properties:
       RouteTableId: !Ref RouteTablePrivateC
       DestinationCidrBlock: '0.0.0.0/0'
@@ -628,16 +637,19 @@ Outputs:
       Name: !Sub '${AWS::StackName}-RDSSubnetGroup'
   EIPA:
     Description: 'NAT Gateway Elastic IP A'
+    Condition: CreateInternetGatewayBoolean
     Value: !Ref EIPA
     Export:
       Name: !Sub '${AWS::StackName}-NATGatewayEIPA'
   EIPB:
     Description: 'NAT Gateway Elastic IP B'
+    Condition: CreateInternetGatewayBoolean
     Value: !Ref EIPB
     Export:
       Name: !Sub '${AWS::StackName}-NATGatewayEIPB'
   EIPC:
     Description: 'NAT Gateway Elastic IP C'
+    Condition: CreateInternetGatewayBoolean
     Value: !Ref EIPC
     Export:
       Name: !Sub '${AWS::StackName}-NATGatewayEIPC'
