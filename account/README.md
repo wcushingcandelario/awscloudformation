@@ -11,6 +11,7 @@ When creating a new AWS account, the following Service Limits should be increase
 |      VPC      |   VPCs Per Region  |        10       |
 | EC2 Instances |   Instance Limit   |  100 (per type) |
 |  Elastic IPs  | New VPC Elastic IP |       250       |
+|  Elastic Load Balancers  | Elastic Load Balancer Limit |       100       |
 
 
 http://www.tablesgenerator.com/markdown_tables#
