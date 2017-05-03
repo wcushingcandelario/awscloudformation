@@ -33,6 +33,7 @@ Parameters:
     ConstraintDescription: 'No spaces, periods, special characters, eg: "ovc-office".'
   RoutePropagation:
     Description: 'Boolean indicating whether route propagation should be used.'
+    Type: String
     Default: true
     AllowedValues:
       - true
