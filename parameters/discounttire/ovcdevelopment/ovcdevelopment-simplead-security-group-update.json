@@ -1,0 +1,25 @@
+[{
+    "ParameterKey": "ParentVPCStack",
+    "ParameterValue": "ovcdevelopment"
+  },
+  {
+    "ParameterKey": "ADSecurityGroupId",
+    "ParameterValue": "sg-6e7dea15"
+  },
+  {
+    "ParameterKey": "CustomerADAccessCIDR2InUse",
+    "ParameterValue": "true"
+  },
+  {
+    "ParameterKey": "CustomerADAccessCIDR2",
+    "ParameterValue": "10.0.0.0/10"
+  },
+  {
+    "ParameterKey": "CustomerADAccessCIDR3InUse",
+    "ParameterValue": "true"
+  },
+  {
+    "ParameterKey": "CustomerADAccessCIDR3",
+    "ParameterValue": "10.101.0.0/16"
+  }
+]

@@ -37,7 +37,7 @@ Parameters:
     ConstraintDescription: Must be a valid CIDR.
   CustomerADAccessCIDR3InUse:
     Description: Boolean indicating if CustomerADAccessCIDR3 is used.
-    Default: false
+    Default: true
     Type: String
     AllowedValues:
       - true
