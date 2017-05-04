@@ -28,9 +28,9 @@ Parameters:
     Type: String
     ConstraintDescription: 'The type of instance that the POS Server will run on eg. t2.small, m4.medium, etc'
   AMIID:
-    Description: AMI ID to attach.
+    Description: Amazon Linux base AMI ID to attach for your region.
     Type: AWS::EC2::Image::Id
-    ConstraintDescription: 'The AMI ID that will be attached to the Launch Configuration.'
+    ConstraintDescription: 'The base Amazon Linux AMI ID that will be attached to the Launch Configuration.'
   MMSGroupId:
     Description: Mongo Group ID.
     Type: String
