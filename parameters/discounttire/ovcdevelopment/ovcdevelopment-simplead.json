@@ -1,0 +1,14 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "ovcdevelopment"
+     },
+    {
+         "ParameterKey": "FQDNName",
+         "ParameterValue": "ds1.ovcdtc.net"
+     },
+    {
+         "ParameterKey": "SimpleADPW",
+         "ParameterValue": "Q2A9KKTGiL$?"
+     }
+]
