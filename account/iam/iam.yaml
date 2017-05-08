@@ -108,6 +108,38 @@ Resources:
           - sts:AssumeRole
       Path: "/"
 
+  ElasticBeanstalkInstanceRolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ovc-github-access
+      PolicyDocument:
+        '{
+          "Version": "2012-10-17",
+          "Statement": [{
+              "Sid": "Example",
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": [
+                "arn:aws:s3:::ovc-github-access/dockercfg"
+              ]
+            },
+            {
+              "Sid": "ListBucket",
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetBucketLocation",
+                "s3:ListBucket"
+              ],
+              "Resource": "arn:aws:s3:::ovc-github-access"
+            }
+          ]
+        }
+        '
+      Roles:
+      - Ref: cfElasticBeanstalkInstanceRole
+
   ElasticBeanstalkInstanceRoleInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
