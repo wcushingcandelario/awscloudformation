@@ -45,6 +45,20 @@ Resources:
         ToPort: 443
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref InventoryManagerSecurityGroup
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref CSLSecurityGroup
+
+  POStoLoadBalancer:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref cfPOSLoadBalancerSecurityGroup
+      FromPort: 443
+      ToPort: 443
+      IpProtocol: tcp
+      SourceSecurityGroupId: !Ref cfPOSServerSecurityGroup
 
 # POS Server
 
@@ -131,6 +145,28 @@ Resources:
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
 
+  CSLSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'CSL security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value: CSLSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 22
+        ToPort: 22
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
+
 
 # MongoDB Cloud Manager
 
@@ -165,6 +201,11 @@ Resources:
         ToPort: 27020
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref InventoryManagerSecurityGroup
+      -
+        FromPort: 27000
+        ToPort: 27020
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref CSLSecurityGroup
       -
         FromPort: 22
         ToPort: 22
@@ -241,6 +282,11 @@ Outputs:
     Value: !Ref InventoryManagerSecurityGroup
     Export:
       Name: !Sub '${ParentVPCStack}-InventoryManagerSecurityGroup'
+  CSLSecurityGroup:
+    Description: CSL Instance Security Group
+    Value: !Ref CSLSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-CSLSecurityGroup'
   BastionHostSecurityGroup:
     Description: Bastion Host Security Group
     Value: !Ref cfBastionHostSecurityGroup

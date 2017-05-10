@@ -1,0 +1,20 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CSL ElasticBeanstalk application template.'
+
+Resources:
+
+  CSLApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: CSL
+      Description: OneView CSL
+    # Important
+    # If you specify a name, you cannot perform updates that require replacement of this resource.
+
+Outputs:
+  CSLApplication:
+    Description: 'CSL Application'
+    Value: !Ref CSLApplication
+    Export:
+      Name: CSLApplication
