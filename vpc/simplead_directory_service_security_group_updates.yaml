@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Security group configuration for OneView Commerce POS Server'
+Description: 'Network: Update the SimpleAD security group to allow proper IP ranges ingress permissions for DNS forwarding.'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:

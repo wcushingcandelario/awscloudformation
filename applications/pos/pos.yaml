@@ -94,6 +94,14 @@ Parameters:
       - production
       - other
     ConstraintDescription: 'The type of environment this Mongo is for ie: dev, qa, etc.'
+  ASGMinSize:
+    Description: Minimum number of instances in the auto scaling group.
+    Type: Number
+    Default: 1
+  ASGMaxSize:
+    Description: Maximum number of instances in the auto scaling group.
+    Type: Number
+    Default: 3
   MessageRetentionPeriodSetting:
     Description: How many seconds should SQS messages be retained.
     Type: Number
@@ -372,8 +380,8 @@ Resources:
       LaunchConfigurationName: !Ref OVCPOSServerLaunchConfiguration
       LoadBalancerNames:
       - !Ref LoadBalancer
-      MinSize: 1
-      MaxSize: 1
+      MinSize: !Ref ASGMinSize
+      MaxSize: !Ref ASGMaxSize
       DesiredCapacity: 1
       Cooldown: 240
       HealthCheckGracePeriod: 300

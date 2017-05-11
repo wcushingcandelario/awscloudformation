@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Security group configuration for OneView Commerce POS Server'
+Description: 'Network: Create a SimpleAD Service Resource.'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
