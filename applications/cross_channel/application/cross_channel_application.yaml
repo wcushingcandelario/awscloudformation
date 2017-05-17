@@ -1,0 +1,20 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Cross Channel ElasticBeanstalk application template.'
+
+Resources:
+
+  CrossChannelApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: Cross Channel
+      Description: OneView Cross Channel
+    # Important
+    # If you specify a name, you cannot perform updates that require replacement of this resource.
+
+Outputs:
+  CrossChannelApplication:
+    Description: 'Cross Channel Application'
+    Value: !Ref CrossChannelApplication
+    Export:
+      Name: CrossChannelApplication

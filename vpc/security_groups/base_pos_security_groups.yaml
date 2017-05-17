@@ -50,6 +50,11 @@ Resources:
         ToPort: 443
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref CSLSecurityGroup
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref CrossChannelSecurityGroup
 
   POStoLoadBalancer:
     Type: 'AWS::EC2::SecurityGroupIngress'
@@ -145,6 +150,7 @@ Resources:
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
 
+  # CSL Security Group
   CSLSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -167,6 +173,28 @@ Resources:
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
 
+  # Cross Channel Security Group
+  CrossChannelSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'CrossChannel security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value: CrossChannelSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 22
+        ToPort: 22
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
 
 # MongoDB Cloud Manager
 
@@ -206,6 +234,11 @@ Resources:
         ToPort: 27020
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref CSLSecurityGroup
+      -
+        FromPort: 27000
+        ToPort: 27020
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref CrossChannelSecurityGroup
       -
         FromPort: 22
         ToPort: 22
@@ -287,6 +320,11 @@ Outputs:
     Value: !Ref CSLSecurityGroup
     Export:
       Name: !Sub '${ParentVPCStack}-CSLSecurityGroup'
+  CrossChannelSecurityGroup:
+    Description: CrossChannel Instance Security Group
+    Value: !Ref CrossChannelSecurityGroup
+    Export:
+      Name: !Sub '${ParentVPCStack}-CrossChannelSecurityGroup'
   BastionHostSecurityGroup:
     Description: Bastion Host Security Group
     Value: !Ref cfBastionHostSecurityGroup

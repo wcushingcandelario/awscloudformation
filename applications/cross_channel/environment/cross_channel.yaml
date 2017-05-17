@@ -1,0 +1,337 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Application: CrossChannel ElasticBeanstalk environment template.'
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  EnvironmentType:
+    Description: Environment Type.
+    Default: dev
+    Type: String
+    AllowedValues:
+      - dev
+      - qa
+      - uat
+      - sit
+      - test
+      - rc
+      - preproduction
+      - production
+      - other
+    ConstraintDescription: Specify the type of environment this instance will be used in.
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    Default: t2.small
+    ConstraintDescription: 'The type of instance that CrossChannel will run on eg. t2.small, m3.medium, etc'
+  SSHKeyName:
+    Description: SSH Key Name.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
+  HostedZoneId:
+    Description: 'Hosted Zone Id for the Route53 domain to create the DNS entry.'
+    Type: String
+  HostedZoneDomainName:
+    Description: 'Hosted Zone Name in Route53 domain to create the DNS entry.'
+    Type: String
+  MongoURI:
+    Description: 'The Cross Channel MongoDB URI.'
+    Type: String
+  CrossChannelApiPort:
+    Description: CrossChannel API Port.
+    Default: 3009
+    Type: Number
+    ConstraintDescription: The port the CrossChannel API runs on.
+  MessageRetentionPeriodSetting:
+    Description: How many seconds should SQS messages be retained.
+    Type: Number
+    MaxValue: 1209600
+    Default: 1209600
+    ConstraintDescription: Must be less than or equal to 1209600.
+  MaxReceiveCountSetting:
+    Description: How many reads are allowed before pushing a message to the dead letter queue.
+    Type: Number
+    MaxValue: 25
+    Default: 5
+    ConstraintDescription: Must be less than or equal to 25.
+  NewRelicLicenseKey:
+    Description: NewRelic license key.
+    Type: String
+    Default: ''
+  MinASGSize:
+    Description: 'Minimum number of instances running'
+    Type: Number
+    Default: 1
+  MaxASGSize:
+    Description: 'Maximum number of instances running'
+    Type: Number
+    Default: 3
+  SolutionStackName:
+    Description: 'The solution stack used'
+    Type: String
+    Default: '64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)'
+
+Conditions:
+  NewRelicKeyPresent: !Not
+    - !Equals
+      - ''
+      - !Ref NewRelicLicenseKey
+
+Resources:
+  CrossChannelServerEnvironment:
+    Type: "AWS::ElasticBeanstalk::Environment"
+    Properties:
+      ApplicationName:
+        'Fn::ImportValue': CrossChannelApplication
+      Description: CrossChannel Server
+      EnvironmentName: !Sub '${EnvironmentType}-CrossChannel'
+      SolutionStackName: !Ref SolutionStackName
+      OptionSettings:
+
+        # Scaling Settings
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: !Ref MinASGSize
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: !Ref MaxASGSize
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateEnabled
+          Value: true
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateType
+          Value: Health
+
+        # VPC Network Settings
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsAppPrivate'
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
+        - Namespace: aws:ec2:vpc
+          OptionName: AssociatePublicIpAddress
+          Value: true
+
+        # Environment Settings
+        - Namespace: aws:elasticbeanstalk:healthreporting:system
+          OptionName: SystemType
+          Value: enhanced
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-CrossChannelSecurityGroup'
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value:
+            'Fn::ImportValue': ElasticBeanstalkSerivceRole
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: !Ref ElasticBeanstalkInstanceRoleInstanceProfile
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value:
+            'Fn::Sub': tcp, 22, 22, !ImportValue '${ParentVPCStack}-BastionHostSecurityGroup'
+
+          # ELB Settings
+        - Namespace: aws:elb:loadbalancer
+          OptionName: CrossZone
+          Value: true
+
+          # ELB Port 80
+        - Namespace: aws:elb:listener
+          OptionName: ListenerEnabled
+          Value: false
+
+          # ELB Port 3000
+        - Namespace: aws:elb:listener:3000
+          OptionName: ListenerEnabled
+          Value: true
+        - Namespace: aws:elb:listener:3000
+          OptionName: InstanceProtocol
+          Value: HTTP
+
+          # ELB Port 4500
+        - Namespace: aws:elb:listener:4500
+          OptionName: ListenerEnabled
+          Value: true
+        - Namespace: aws:elb:listener:4500
+          OptionName: InstanceProtocol
+          Value: HTTP
+
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBScheme
+          Value: internal
+
+          # Scaling Settings
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: !Ref InstanceType
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref SSHKeyName
+
+          # NewRelic Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LICENSE_KEY
+          Value: !If
+            - NewRelicKeyPresent
+            - !Ref NewRelicLicenseKey
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_APP_NAME
+          Value: !If
+            - NewRelicKeyPresent
+            - !Sub '${EnvironmentType}-CrossChannel'
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LOG
+          Value: !If
+            - NewRelicKeyPresent
+            - '/var/log/newrelic_agent.log'
+            - !Ref 'AWS::NoValue'
+
+          # Environment Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ALERT_JMS_QUEUE
+          Value: !GetAtt QueueAlert.QueueName
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: API_PATH
+          Value: !Join ['', [ 'http://', !Sub '${EnvironmentType}-crosschannel', ., !Ref 'HostedZoneDomainName', !Sub ':${CrossChannelApiPort}', '/json/transaction/return']]
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: GATEWAY_API_URL
+          Value: !Join ['', [ 'http://', !Sub '${EnvironmentType}-crosschannel', ., !Ref 'HostedZoneDomainName', !Sub ':${CrossChannelApiPort}', '/json/transaction/return']]
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DASH_PATH
+          Value: !Join ['', [ 'https://', !Sub '${EnvironmentType}', ., !Ref 'HostedZoneDomainName', '/ovcdashboard/']]
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JMS_PATH
+          Value: !Join ['', [ 'https://', !Sub '${EnvironmentType}', ., !Ref 'HostedZoneDomainName', '/json/jmshandler/']]
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POS_URL
+          Value: !Join ['', [ 'https://', !Sub '${EnvironmentType}', ., !Ref 'HostedZoneDomainName']]
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_PATH
+          Value: !Ref MongoURI
+
+      Tags:
+        - Key: "Role"
+          Value: "CrossChannel"
+        - Key: "Environment"
+          Value: !Ref EnvironmentType
+        - Key: "Project"
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        - Key: LiveIdentifier
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: CrossChannelServerEnvironment
+    Properties:
+      HostedZoneId:
+        !Ref 'HostedZoneId'
+      Name: !Join ['', [!Sub '${EnvironmentType}-crosschannel', ., !Ref 'HostedZoneDomainName']]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt CrossChannelServerEnvironment.EndpointURL
+
+  ElasticBeanstalkInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker'
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+
+  ElasticBeanstalkInstanceRoleInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    DependsOn: ElasticBeanstalkInstanceRole
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: ElasticBeanstalkInstanceRole
+
+  CrossChannelRolePolicies:
+    Type: "AWS::IAM::Policy"
+    DependsOn: ElasticBeanstalkInstanceRole
+    Properties:
+      PolicyName: CrossChannelQueuePermissions
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action:
+              - sqs:DeleteMessage
+              - sqs:DeleteMessageBatch
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+              - sqs:SendMessage
+              - sqs:SendMessageBatch
+            Resource:
+              - !GetAtt 'QueueAlert.Arn'
+      Roles:
+      - Ref: ElasticBeanstalkInstanceRole
+
+  ElasticBeanstalkOVCDockerHubPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: OVCDockerHubAccess
+      PolicyDocument:
+        '{
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Example",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetObject"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::ovc-github-access/dockercfg"
+                    ]
+                }
+            ]
+        }
+        '
+      Roles:
+      - Ref: ElasticBeanstalkInstanceRole
+
+  QueueAlert:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueueAlertDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueueAlertDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueueAlertDLQ:
+    Type: "AWS::SQS::Queue"
