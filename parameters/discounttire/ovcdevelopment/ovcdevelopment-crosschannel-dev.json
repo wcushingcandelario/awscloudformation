@@ -20,7 +20,7 @@
     },
     {
         "ParameterKey": "MongoURI",
-        "ParameterValue": "mongodb://root:root@mongodb01-dev.ovcdtc.com:27000,mongodb02-dev.ovcdtc.com:27000,mongodb03-dev.ovcdtc.com:27000/dev_promo"
+        "ParameterValue": "mongodb://root:root@mongodb-dev.ovcdtc.com:27000/dev_crosschannel?authSource=dev_crosschannel"
     },
     {
          "ParameterKey": "NewRelicLicenseKey",

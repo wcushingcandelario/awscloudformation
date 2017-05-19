@@ -44,6 +44,11 @@ Parameters:
     Default: 3009
     Type: Number
     ConstraintDescription: The port the CrossChannel API runs on.
+  CrossChannelAlertsPort:
+    Description: CrossChannel Alerts Port.
+    Default: 3007
+    Type: Number
+    ConstraintDescription: The port the CrossChannel Alerts run on.
   MessageRetentionPeriodSetting:
     Description: How many seconds should SQS messages be retained.
     Type: Number
@@ -86,7 +91,7 @@ Resources:
       ApplicationName:
         'Fn::ImportValue': CrossChannelApplication
       Description: CrossChannel Server
-      EnvironmentName: !Sub '${EnvironmentType}-CrossChannel'
+      EnvironmentName: !Sub '${EnvironmentType}-crosschannel'
       SolutionStackName: !Ref SolutionStackName
       OptionSettings:
 
@@ -140,9 +145,9 @@ Resources:
           OptionName: IamInstanceProfile
           Value: !Ref ElasticBeanstalkInstanceRoleInstanceProfile
         - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: IamInstanceProfile
+          OptionName: SSHSourceRestriction
           Value:
-            'Fn::Sub': tcp, 22, 22, !ImportValue '${ParentVPCStack}-BastionHostSecurityGroup'
+            !Join ['', [ 'tcp, 22, 22, ', "Fn::ImportValue" : {"Fn::Sub":'${ParentVPCStack}-BastionHostSecurityGroup'}]]
 
           # ELB Settings
         - Namespace: aws:elb:loadbalancer
@@ -152,7 +157,10 @@ Resources:
           # ELB Port 80
         - Namespace: aws:elb:listener
           OptionName: ListenerEnabled
-          Value: false
+          Value: true
+        - Namespace: aws:elb:listener
+          OptionName: InstanceProtocol
+          Value: HTTP
 
           # ELB Port 3000
         - Namespace: aws:elb:listener:3000
@@ -162,11 +170,11 @@ Resources:
           OptionName: InstanceProtocol
           Value: HTTP
 
-          # ELB Port 4500
-        - Namespace: aws:elb:listener:4500
+          # ELB Port 5000
+        - Namespace: aws:elb:listener:5000
           OptionName: ListenerEnabled
           Value: true
-        - Namespace: aws:elb:listener:4500
+        - Namespace: aws:elb:listener:5000
           OptionName: InstanceProtocol
           Value: HTTP
 
@@ -209,6 +217,9 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: API_PATH
           Value: !Join ['', [ 'http://', !Sub '${EnvironmentType}-crosschannel', ., !Ref 'HostedZoneDomainName', !Sub ':${CrossChannelApiPort}', '/json/transaction/return']]
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ALERTS_PATH
+          Value: !Join ['', [ 'http://', !Sub '${EnvironmentType}-crosschannel', ., !Ref 'HostedZoneDomainName', !Sub ':${CrossChannelAlertsPort}']]
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: GATEWAY_API_URL
           Value: !Join ['', [ 'http://', !Sub '${EnvironmentType}-crosschannel', ., !Ref 'HostedZoneDomainName', !Sub ':${CrossChannelApiPort}', '/json/transaction/return']]
