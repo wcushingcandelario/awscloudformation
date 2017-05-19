@@ -1,0 +1,20 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'POS ElasticBeanstalk application template.'
+
+Resources:
+
+  POSApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: POS
+      Description: OneView POS
+    # Important
+    # If you specify a name, you cannot perform updates that require replacement of this resource.
+
+Outputs:
+  POSApplication:
+    Description: 'POS Application'
+    Value: !Ref POSApplication
+    Export:
+      Name: POSApplication

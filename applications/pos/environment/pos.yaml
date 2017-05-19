@@ -1,0 +1,239 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Application: POS ElasticBeanstalk environment template.'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Environment Setup'
+      Parameters:
+      - EnvironmentType
+      - ProjectName
+      - InstanceType
+      - SSHKeyName
+    - Label:
+        default: 'Environment Configuration'
+      Parameters:
+      - OVCURL
+      - MONGOURL
+      - DASHPATH
+      - MAXPROMOID
+      - PROMOPATH
+    ParameterLabels:
+      EnvironmentType:
+        default: "Specify the type of environment this instance will be used in."
+      OVCURL:
+        default: "Specify the URL for the OVC server. eg: http://devmysql.ovcdemo.com:8080"
+      MONGOURL:
+        default: "Specify the URL for the MongoDB connection.  eg: mongodb://mongodb.ovcdemo.ovc/dbname"
+      DASHPATH:
+        default: "Specify the URL for the OVC Dashboard. eg: http://devmysql.ovcdemo.com/ovcdashboard/"
+      MAXPROMOID:
+        default: "Specify the maximum length of the Promo IDs expressed with 9s. eg: 999999"
+      PROMOPATH:
+        default: "Specify the URL for the OVC POS. eg: http://dev-promo.ovcdemo.com:3000/promotions/"
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  EnvironmentType:
+    Description: Environment Type.
+    Default: dev
+    Type: String
+    AllowedValues:
+      - dev
+      - qa
+      - uat
+      - sit
+      - test
+      - rc
+      - preproduction
+      - production
+      - other
+    ConstraintDescription: Specify the type of environment this instance will be used in.
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    Default: t2.small
+    ConstraintDescription: 'The type of instance that the POS will run on eg. t2.small, m3.medium, etc'
+  SSHKeyName:
+    Description: SSH Key Name.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
+  OVCURL:
+    Description: OVC Server URL.
+    Default: http://sample.ovcdemo.com:8080
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  MONGOURL:
+    Description: Mongo URL.
+    Default: mongodb://sample.ovcdemo.ovc/dbname
+    Type: String
+    ConstraintDescription: Specify the URL for MongoDB.
+  DASHPATH:
+    Description: OVC Dashboard URL.
+    Default: http://sample.ovcdemo.com/ovcdashboard/
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC Dashboard.
+  NewRelicLicenseKey:
+    Description: NewRelic license key.
+    Type: String
+    Default: ''
+  MinASGSize:
+    Description: 'Minimum number of instances running'
+    Type: Number
+    Default: 1
+  MaxASGSize:
+    Description: 'Maximum number of instances running'
+    Type: Number
+    Default: 3
+  HostedZoneId:
+    Description: 'The Hosted Zone ID used to create Record Sets (URLs)'
+    Type: String
+  HostedZoneDomainName:
+    Description: 'The Domain Name with extension used to create Record Sets (URLs). eg: ovcdemo.com'
+    Type: String
+  SolutionStackName:
+    Description: 'The solution stack used'
+    Type: String
+
+Conditions:
+  NewRelicKeyPresent: !Not
+    - !Equals
+      - ''
+      - !Ref NewRelicLicenseKey
+
+Resources:
+  POSServerEnvironment:
+    Type: "AWS::ElasticBeanstalk::Environment"
+    Properties:
+      ApplicationName:
+        'Fn::ImportValue': POSApplication
+      Description: POS
+      EnvironmentName: !Sub '${EnvironmentType}-pos'
+      SolutionStackName: !Ref SolutionStackName
+      OptionSettings:
+
+        # Scaling Settings
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: !Ref MinASGSize
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: !Ref MaxASGSize
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateEnabled
+          Value: true
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateType
+          Value: Health
+
+        # VPC Network Settings
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsAppPrivate'
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
+        - Namespace: aws:ec2:vpc
+          OptionName: AssociatePublicIpAddress
+          Value: true
+
+        # Settings
+        - Namespace: aws:elasticbeanstalk:healthreporting:system
+          OptionName: SystemType
+          Value: enhanced
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-POSServerSecurityGroup'
+
+        # Environment Settings
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value:
+            'Fn::ImportValue': ElasticBeanstalkSerivceRole
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value:
+            'Fn::ImportValue': ElasticBeanstalkInstanceRoleInstanceProfile
+
+          # ELB Settings
+        - Namespace: aws:elb:loadbalancer
+          OptionName: CrossZone
+          Value: true
+
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBScheme
+          Value: internal
+
+          # Scaling Settings
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: !Ref InstanceType
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref SSHKeyName
+
+          # NewRelic Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LICENSE_KEY
+          Value: !If
+            - NewRelicKeyPresent
+            - !Ref NewRelicLicenseKey
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_APP_NAME
+          Value: !If
+            - NewRelicKeyPresent
+            - !Sub '${EnvironmentType}-pos'
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LOG
+          Value: !If
+            - NewRelicKeyPresent
+            - '/var/log/newrelic_agent.log'
+            - !Ref 'AWS::NoValue'
+
+          # Environment Variables
+        # - Namespace: aws:elasticbeanstalk:application:environment
+        #   OptionName: MONGO_URL
+        #   Value: !Ref MONGOURL
+
+      Tags:
+        - Key: "Role"
+          Value: "PromoEngine"
+        - Key: "Environment"
+          Value: !Ref EnvironmentType
+        - Key: "Project"
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        - Key: LiveIdentifier
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: POSServerEnvironment
+    Properties:
+      HostedZoneId:
+        !Ref 'HostedZoneId'
+      Name: !Join ['', [!Sub '${EnvironmentType}-pos', ., !Ref 'HostedZoneDomainName']]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt POSServerEnvironment.EndpointURL
