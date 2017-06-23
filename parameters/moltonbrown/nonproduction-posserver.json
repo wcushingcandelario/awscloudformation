@@ -7,6 +7,10 @@
           "ParameterKey": "SSHKeyPair",
           "ParameterValue": "moltonbrown-ops"
       },
+      {
+          "ParameterKey": "SSHKeyName",
+          "ParameterValue": "moltonbrown-ops"
+      },
      {
           "ParameterKey": "InstanceType",
           "ParameterValue": "t2.large"
@@ -27,7 +31,19 @@
           "ParameterKey": "HostedZoneResourceId",
           "ParameterValue": "Z1F1Y0GUYLTJLJ"
       },
-     {
+      {
+          "ParameterKey": "HostedZoneId",
+          "ParameterValue": "Z1F1Y0GUYLTJLJ"
+      },
+      {
+          "ParameterKey": "HostedZoneDomainName",
+          "ParameterValue": "mb-ovc.co.uk"
+      },
+      {
+          "ParameterKey": "SolutionStackName",
+          "ParameterValue": "64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)"
+      },
+      {
           "ParameterKey": "HostedZoneName",
           "ParameterValue": "mb-ovc.co.uk"
      }

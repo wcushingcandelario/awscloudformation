@@ -4,6 +4,7 @@
          "ParameterValue": "nonproduction"
      },
      {
+<<<<<<< Updated upstream
           "ParameterKey": "HostedZoneId",
           "ParameterValue": "Z3H1HD2X12271U"
       },
@@ -14,5 +15,25 @@
      {
           "ParameterKey": "SolutionStackName",
           "ParameterValue": "64bit Amazon Linux 2017.03 v2.6.0 running Docker 1.12.6"
+=======
+          "ParameterKey": "SQLHOST",
+          "ParameterValue": "mysql-dev.mb-ovc.co.uk"
+      },
+      {
+          "ParameterKey": "SQLPASSWORD",
+          "ParameterValue": "0n3v13w123"
+      },
+      {
+          "ParameterKey": "SQLDB",
+          "ParameterValue": "xdb"
+      },
+      {
+          "ParameterKey": "SSHKeyName",
+          "ParameterValue": "moltonbrown-ops"
+      },
+      {
+          "ParameterKey": "SQLUSER",
+          "ParameterValue": "root"
+>>>>>>> Stashed changes
       }
 ]
