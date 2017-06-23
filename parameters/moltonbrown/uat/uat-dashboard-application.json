@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+     {
+          "ParameterKey": "HostedZoneId",
+          "ParameterValue": "Z3H1HD2X12271U"
+      },
+     {
+          "ParameterKey": "HostedZoneDomainName",
+          "ParameterValue": "mb-ovc.co.uk"
+      },
+     {
+          "ParameterKey": "SolutionStackName",
+          "ParameterValue": "64bit Amazon Linux 2017.03 v2.6.0 running Docker 1.12.6"
+      }
+]

@@ -1,0 +1,34 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+    {
+         "ParameterKey": "POSURL",
+         "ParameterValue": "https://uat-pos.mb-ovc.co.uk"
+     },
+    {
+         "ParameterKey": "SQLHOST",
+         "ParameterValue": "mysql-dev.mb-ovc.co.uk"
+     },
+    {
+         "ParameterKey": "SQLDB",
+         "ParameterValue": "uat_xdb"
+     },
+    {
+         "ParameterKey": "SQLUSER",
+         "ParameterValue": "root"
+     },
+     {
+         "ParameterKey": "EnvironmentType",
+         "ParameterValue": "uat"
+     },
+    {
+         "ParameterKey": "SQLPASSWORD",
+         "ParameterValue": "0n3v13w123"
+     },
+    {
+         "ParameterKey": "SSHKeyName",
+         "ParameterValue": "moltonbrown-ops"
+     }
+]

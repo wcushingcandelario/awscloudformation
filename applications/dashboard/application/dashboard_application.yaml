@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  MinASGSize:
+    Description: 'Minimum number of instances running'
+    Type: Number
+    Default: 1
+  MaxASGSize:
+    Description: 'Maximum number of instances running'
+    Type: Number
+    Default: 3
+  HostedZoneId:
+    Description: 'The Hosted Zone ID used to create Record Sets (URLs)'
+    Type: String
+  HostedZoneDomainName:
+    Description: 'The Domain Name with extension used to create Record Sets (URLs). eg: ovcdemo.com'
+    Type: String
+  SolutionStackName:
+    Description: 'The solution stack used'
+    Type: String
+    Default: '64bit Amazon Linux 2016.09 v2.5.2 running Multi-container Docker 1.12.6 (Generic)'
+
+Resources:
+
+  Dashboard:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      Description: OneView Dashboard
+    # Important
+    # If you specify a name, you cannot perform updates that require replacement of this resource.
+
+  DashboardConfigurationTemplate:
+    Type: AWS::ElasticBeanstalk::ConfigurationTemplate
+    Properties:
+      ApplicationName:
+        Ref: Dashboard
+      Description: Dashboard  Configuration Template
+      OptionSettings:
+
+      # Scaling Settings
+      - Namespace: aws:autoscaling:asg
+        OptionName: MinSize
+        Value: !Ref MinASGSize
+      - Namespace: aws:autoscaling:asg
+        OptionName: MaxSize
+        Value: !Ref MaxASGSize
+      - Namespace: aws:elasticbeanstalk:environment
+        OptionName: EnvironmentType
+        Value: LoadBalanced
+
+      # VPC Network Settings
+      - Namespace: aws:ec2:vpc
+        OptionName: VPCId
+        Value: vpc-2951874e
+      - Namespace: aws:ec2:vpc
+        OptionName: Subnets
+        Value: subnet-6c120134
+      - Namespace: aws:ec2:vpc
+        OptionName: ELBSubnets
+        Value: subnet-1e160546
+      - Namespace: aws:ec2:vpc
+        OptionName: AssociatePublicIpAddress
+        Value: true
+
+      # Settings
+      - Namespace: aws:elasticbeanstalk:healthreporting:system
+        OptionName: SystemType
+        Value: enhanced
+      - Namespace: aws:autoscaling:launchconfiguration
+        OptionName: SecurityGroups
+        Value: sg-a8beb6d1
+
+      SolutionStackName: !Ref SolutionStackName
+
+Outputs:
+  DashboardApplication:
+    Description: 'Dashboard  Application'
+    Value: !Ref Dashboard
+    Export:
+      Name: !Sub '${ParentVPCStack}-DashboardApplication'
+  DashboardConfigurationTemplate:
+    Description: 'Dashboard  Configuration Template'
+    Value: !Ref DashboardConfigurationTemplate
+    Export:
+      Name: !Sub '${ParentVPCStack}-DashboardConfigurationTemplate'
+  HostedZone:
+    Description: 'Dashboard  Hosted Zone'
+    Value: !Ref HostedZoneId
+    Export:
+      Name: !Sub '${ParentVPCStack}-DashboardHostedZoneId'
+  HostedZoneDomainName:
+    Description: 'Dashboard  Domain Name'
+    Value: !Ref HostedZoneDomainName
+    Export:
+      Name: !Sub '${ParentVPCStack}-DashboardHostedZoneDomainName'
