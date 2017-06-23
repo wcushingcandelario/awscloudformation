@@ -13,7 +13,7 @@
       },
      {
           "ParameterKey": "AMIID",
-          "ParameterValue": "ami-34c3fc52"
+          "ParameterValue": "ami-4dbcac2b"
       },
      {
           "ParameterKey": "EnvironmentType",
@@ -25,7 +25,7 @@
       },
      {
           "ParameterKey": "HostedZoneResourceId",
-          "ParameterValue": "Z1F1Y0GUYLTJLJ"
+          "ParameterValue": "Z3H1HD2X12271U"
       },
      {
           "ParameterKey": "HostedZoneName",
