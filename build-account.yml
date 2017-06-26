@@ -1,0 +1,6 @@
+- name: Configure IAM roles
+  cloudformation:
+    stack_name: ovc-iam-config
+    state: present
+    region: "{{ customer_region }}"
+    template: "account/iam.yml"
