@@ -12,7 +12,7 @@
     region: "{{ customer_region }}"
     template: "account/configurations/config.yaml"
 
-- name: Configure Confi Monitor
+- name: Configure Config Monitor
   cloudformation:
     stack_name: aws-config-monitor
     state: present

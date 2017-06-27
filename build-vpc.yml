@@ -12,6 +12,20 @@
     region: "{{ customer_region }}"
     template: "vcp/security_groups/base_pos_security_groups.yaml"
 
+- name: Create SimpleAD
+  cloudformation:
+    stack_name: "{{ vpc_name }}-simplead"
+    state: present
+    region: "{{ customer_region }}"
+    template: "vpc/simple_directory_service.yaml"
+
+- name: Create SimpleAD Security Group
+  cloudformation:
+    stack_name: "{{ vpc_name }}-simplead-security"
+    state: present
+    region: "{{ customer_region }}"
+    template: "vpc/simple_directory_service_security_group_updates.yaml"
+
 - name: Create OVC VPN
   cloudformation:
     stack_name: "{{ vpc_name }}-vpn-to-ovc"
