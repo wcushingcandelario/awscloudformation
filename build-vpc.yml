@@ -11,3 +11,17 @@
     state: present
     region: "{{ customer_region }}"
     template: "vcp/security_groups/base_pos_security_groups.yaml"
+
+- name: Create OVC VPN
+  cloudformation:
+    stack_name: "{{ vpc_name }}-vpn-to-ovc"
+    state: present
+    region: "{{ customer_region }}"
+    template: "vpc/site_to_site_vpn.yaml"
+
+- name: Create Customer VPN
+  cloudformation:
+    stack_name: "{{ vpc_name }}-customer-vpn{{ vpn_number }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "vpc/site_to_site_vpn_additional_connection.yaml"
