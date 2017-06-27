@@ -126,7 +126,44 @@ Resources:
         ToPort: 22
         IpProtocol: tcp
         SourceSecurityGroupId: !Ref cfBastionHostSecurityGroup
+      -
+        FromPort: 3000
+        ToPort: 3000
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfPromotionEngineLBSecurityGroup
+      -
+        FromPort: 8888
+        ToPort: 8888
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfPromotionEngineLBSecurityGroup
 
+# Promotion Engine - Empty group to allow MongoDB Security Group Ingress
+  cfPromotionEngineLBSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Promotion Engine LB security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value: cfPromotionEngineSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 3000
+        ToPort: 3000
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfPromotionEngineLBSecurityGroup
+      -
+        FromPort: 8888
+        ToPort: 8888
+        IpProtocol: tcp
+        SourceSecurityGroupId: !Ref cfPromotionEngineLBSecurityGroup
 # Inventory Manager - Empty group to allow MongoDB Security Group Ingress
   InventoryManagerSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -249,6 +286,11 @@ Resources:
         ToPort: 22
         IpProtocol: tcp
         CidrIp: '4.35.16.128/25'
+      -
+        FromPort: 22
+        ToPort: 22
+        IpProtocol: tcp
+        CidrIp: '38.122.253.250/32'
 
   MongoCloudManagerInternalInbound:
     Type: AWS::EC2::SecurityGroupIngress

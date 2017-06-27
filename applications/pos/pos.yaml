@@ -21,6 +21,7 @@ Metadata:
       Parameters:
       - HostedZoneName
       - HostedZoneResourceId
+      - HostedZoneResourceIdPublic
     - Label:
         default: 'Security Group Ingress Configuration'
       Parameters:
@@ -115,7 +116,10 @@ Parameters:
     Default: 5
     ConstraintDescription: Must be less than or equal to 25.
   HostedZoneResourceId:
-    Description: 'Hosted Zone Id for the Route53 domain to create the DBs DNS entry.'
+    Description: 'Hosted Zone Id for the Route53 domain to create the ELB DNS entry.'
+    Type: String
+  HostedZoneResourceIdPublic:
+    Description: 'PUBLIC Hosted Zone Id for the Route53 domain to create the ELB DNS entry.'
     Type: String
   HostedZoneName:
     Description: 'Hosted Zone Name for the Route53 domain to create the DBs DNS entry.'
@@ -380,6 +384,7 @@ Resources:
       LaunchConfigurationName: !Ref OVCPOSServerLaunchConfiguration
       LoadBalancerNames:
       - !Ref LoadBalancer
+      - !Ref PublicLoadBalancer
       MinSize: !Ref ASGMinSize
       MaxSize: !Ref ASGMaxSize
       DesiredCapacity: 1
@@ -424,7 +429,7 @@ Resources:
       HealthCheck:
         HealthyThreshold: 2
         Interval: 15
-        Target: 'HTTP:8080/json/health/getStatus'
+        Target: 'HTTPS:443/'
         Timeout: 10
         UnhealthyThreshold: 3
       SecurityGroups:
@@ -453,6 +458,52 @@ Resources:
       TTL: '60'
       ResourceRecords:
       - !GetAtt LoadBalancer.DNSName
+
+  PublicLoadBalancer:
+    Type: 'AWS::ElasticLoadBalancing::LoadBalancer'
+    Properties:
+      Subnets:
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPublic'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPublic'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPublic'
+      Listeners:
+      - InstancePort: 443
+        InstanceProtocol: SSL
+        LoadBalancerPort: 443
+        Protocol: SSL
+        SSLCertificateId: !Ref CertificateId
+      HealthCheck:
+        HealthyThreshold: 2
+        Interval: 15
+        Target: 'HTTPS:443/'
+        Timeout: 10
+        UnhealthyThreshold: 3
+      SecurityGroups:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-POSLoadBalancerSecurityGroup'
+      - !Ref PublicPOSLoadBalancerCustomerAccessSecurityGroup
+      Scheme: 'internet-facing'
+      CrossZone: !Ref CrossZoneLoadBalancing
+      Tags:
+      - Key: Environment
+        Value: !Ref EnvironmentType
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  PublicLoadBalancerDNSEntry:
+    Type: AWS::Route53::RecordSet
+    DependsOn: PublicLoadBalancer
+    Properties:
+      HostedZoneId: !Ref 'HostedZoneResourceIdPublic'
+      Comment: !Sub '${ParentVPCStack}-POSServer-PublicLoadBalancer'
+      Name: !Join ['', [!Sub '${EnvironmentType}', ., !Ref 'HostedZoneName', .]]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt PublicLoadBalancer.DNSName
 
   POSServerRole:
     Type: AWS::IAM::Role
@@ -552,6 +603,28 @@ Resources:
         ToPort: 443
         IpProtocol: tcp
         CidrIp: !Ref CustomerPOSAccessCIDR1
+
+  PublicPOSLoadBalancerCustomerAccessSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Load balancer incoming customer connections security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value:  POSLoadBalancerCustomerAccessSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        CidrIp: 127.0.0.1/8
 
   POSLoadBalancerIngress2:
     Type: AWS::EC2::SecurityGroupIngress
