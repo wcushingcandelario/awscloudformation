@@ -4,3 +4,17 @@
     state: present
     region: "{{ customer_region }}"
     template: "account/iam.yml"
+
+- name: Add POS Application
+  cloudformation:
+    stack_name: pos-application
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/pos/application/pos.yaml"
+
+- name: Add Dashboard Application
+  cloudformation:
+    stack_name: pos-application
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/dashboard/application/dashboard.yaml"
