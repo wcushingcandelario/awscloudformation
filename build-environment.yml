@@ -1,0 +1,44 @@
+- name: Create RDS
+  cloudformation:
+    stack_name: "{{ vpc_name }}-rds-{{ environment_name }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "database/rds.yaml"
+
+- name: Create MongoDB
+  cloudformation:
+    stack_name: "{{ vpc_name }}-mongo-{{ environment_name }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "database/mongodb.yaml"
+  when: environment_name == 'preprod' or  environment_name == 'prod'
+
+- name: Create POS Environment
+  cloudformation:
+    stack_name: "{{ vpc_name }}-pos-{{ environment_name }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/pos/environment/pos.yaml"
+
+
+- name: Create Dashboard Environment
+  cloudformation:
+    stack_name: "{{ vpc_name }}-dash-{{ environment_name }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/dashboard/environment/dashboard.yaml"
+
+- name: Create Promotion Engine Environment
+  cloudformation:
+    stack_name: "{{ vpc_name }}-pe-{{ environment_name }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/promotion_engine/environment/promotion_engine.yaml"
+
+
+- name: Create Inventory Manager Environment
+  cloudformation:
+    stack_name: "{{ vpc_name }}-im-{{ environment_name }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/inventory_manager/environment/inventory_manager.yaml"
