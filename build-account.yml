@@ -18,3 +18,17 @@
     state: present
     region: "{{ customer_region }}"
     template: "applications/dashboard/application/dashboard.yaml"
+
+- name: Add Promotion Engine Application
+  cloudformation:
+    stack_name: pos-application
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/promotion_engine/application/promotion_engine_application.yaml"
+
+- name: Add Inventory Manager Application
+  cloudformation:
+    stack_name: pos-application
+    state: present
+    region: "{{ customer_region }}"
+    template: "applications/inventory_manager/application/inventory_manager_application.yaml"
