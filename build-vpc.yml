@@ -1,0 +1,13 @@
+- name: Create VPC
+  cloudformation:
+    stack_name: "{{ vpc_name }}"
+    state: present
+    region: "{{ customer_region }}"
+    template: "vpc/vpc-3azs.yaml"
+
+- name: Create Security Groups
+  cloudformation:
+    stack_name: "{{ vpc_name }}-securitygroups"
+    state: present
+    region: "{{ customer_region }}"
+    template: "vcp/security_groups/base_pos_security_groups.yaml"
