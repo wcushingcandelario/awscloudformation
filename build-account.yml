@@ -5,6 +5,20 @@
     region: "{{ customer_region }}"
     template: "account/iam.yaml"
 
+- name: Configure Cloud Trail
+  cloudformation:
+    stack_name: aws-cloud-trail
+    state: present
+    region: "{{ customer_region }}"
+    template: "account/configurations/config.yaml"
+
+- name: Configure Confi Monitor
+  cloudformation:
+    stack_name: aws-config-monitor
+    state: present
+    region: "{{ customer_region }}"
+    template: "account/configurations/cloudtrail.yaml"
+
 - name: Add POS Application
   cloudformation:
     stack_name: pos-application
