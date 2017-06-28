@@ -159,7 +159,7 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: SecurityGroups
           Value:
-            'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardSecurityGroup'
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-POSServerSecurityGroup'
 
         # Environment Settings
         - Namespace: aws:elasticbeanstalk:environment
