@@ -104,6 +104,10 @@ Resources:
         'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardConfigurationTemplate'
       OptionSettings:
 
+        # Settings
+        - Namespace: aws:elasticbeanstalk:healthreporting:system
+          OptionName: SystemType
+          Value: enhanced
         # Environment Settings
         - Namespace: aws:elasticbeanstalk:environment
           OptionName: ServiceRole
