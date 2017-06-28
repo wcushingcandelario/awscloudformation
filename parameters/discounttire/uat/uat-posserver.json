@@ -1,0 +1,34 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "ovcdevelopment"
+     },
+     {
+          "ParameterKey": "SSHKeyPair",
+          "ParameterValue": "discounttire-ops.pem"
+      },
+     {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.large"
+      },
+     {
+          "ParameterKey": "AMIID",
+          "ParameterValue": "ami-07e9e07e"
+      },
+     {
+          "ParameterKey": "EnvironmentType",
+          "ParameterValue": "uat"
+      },
+     {
+          "ParameterKey": "CertificateId",
+          "ParameterValue": "arn:aws:acm:us-west-2:082361663398:certificate/eab75aa0-072e-433b-9e9c-e1cd0fbd7d8c"
+      },
+     {
+          "ParameterKey": "HostedZoneResourceId",
+          "ParameterValue": "Z188DPNOUDAG5C"
+      },
+     {
+          "ParameterKey": "HostedZoneName",
+          "ParameterValue": "ovcdtc.com"
+     }
+]

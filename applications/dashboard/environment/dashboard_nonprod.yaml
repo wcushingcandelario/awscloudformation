@@ -1,0 +1,150 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Development promotion environment template.'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'VPC Parent Stack'
+      Parameters:
+      - ParentVPCStack
+    - Label:
+        default: 'Environment Setup'
+      Parameters:
+      - EnvironmentType
+      - InstanceType
+      - SSHKeyName
+    - Label:
+        default: 'Environment Configuration'
+      Parameters:
+      - POSURL
+      - SQLHOST
+    ParameterLabels:
+      EnvironmentType:
+        default: "Specify the type of environment this instance will be used in."
+      POSURL:
+        default: "Specify the URL for the OVC server. eg: http://devmysql.ovcdemo.com:8080"
+      SQLHOST:
+        default: "Specify the URL for the MongoDB connection.  eg: mongodb://mongodb.ovcdemo.ovc/dbname"
+
+Parameters:
+  ParentVPCStack:
+    Description: 'Stack name of parent VPC stack based on vpc/vpc-*azs.yaml template.'
+    Type: String
+  EnvironmentType:
+    Description: Environment Type.
+    Default: dev
+    Type: String
+    AllowedValues:
+      - dev
+      - qa
+      - uat
+      - sit
+      - test
+      - rc
+      - preproduction
+      - production
+      - other
+    ConstraintDescription: Specify the type of environment this instance will be used in.
+  InstanceType:
+    Description: Instance Type.
+    Type: String
+    Default: t2.small
+    ConstraintDescription: 'The type of instance that the Dashboard  will run on eg. t2.small, m3.medium, etc'
+  SSHKeyName:
+    Description: SSH Key Name.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
+  POSURL:
+    Description: OVC Server URL.
+    Default: http://sample.ovcdemo.com:8080
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  SQLHOST:
+    Description: MySQL URL.
+    Type: String
+    ConstraintDescription: Specify the URL for MySQL.
+  SQLDB:
+    Description: MySQL Database.
+    Type: String
+    ConstraintDescription: Specify the database for MySQL.
+  SQLPASSWORD:
+    Description: MySQL Database Password.
+    Type: String
+    ConstraintDescription: Specify the password for MySQL.
+  SQLUSER:
+    Description: MySQL Database user.
+    Type: String
+    ConstraintDescription: Specify the user for MySQL.
+
+Resources:
+  PromotionServerEnvironment:
+    Type: "AWS::ElasticBeanstalk::Environment"
+    Properties:
+      ApplicationName: dashboard-app-Dashboard-MGLCDV29I080
+      Description: Dashboard
+      EnvironmentName: !Sub '${EnvironmentType}-dashboard'
+      TemplateName:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardConfigurationTemplate'
+      OptionSettings:
+
+        # Environment Settings
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value:  aws-elasticbeanstalk-service-role
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value:  aws-elasticbeanstalk-ec2-role
+
+          # ELB Settings
+        - Namespace: aws:elb:loadbalancer
+          OptionName: CrossZone
+          Value: true
+
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBScheme
+          Value: internal
+
+          # Scaling Settings
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: !Ref InstanceType
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref SSHKeyName
+
+          # Environment Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SQL_HOST
+          Value: !Ref SQLHOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SQL_DB
+          Value: !Ref SQLDB
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SQL_USER
+          Value: !Ref SQLUSER
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SQL_PASSWORD
+          Value: !Ref SQLPASSWORD
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POS_URL
+          Value: !Ref POSURL
+
+  # DNSRecord:
+  #   Type: AWS::Route53::RecordSet
+  #   DependsOn: PromotionServerEnvironment
+  #   Properties:
+  #     HostedZoneId:
+  #       'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardHostedZoneId'
+  #     # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
+  #     Name: !Join ['', [!Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardHostedZoneDomainName']]
+  #     Type: CNAME
+  #     TTL: '60'
+  #     ResourceRecords:
+  #     - !GetAtt PromotionServerEnvironment.EndpointURL
+
+      Tags:
+        - Key: "Role"
+          Value: "PromoEngine"
+        - Key: "Environment"
+          Value: !Ref EnvironmentType

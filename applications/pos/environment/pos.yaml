@@ -47,6 +47,7 @@ Parameters:
     Type: String
     AllowedValues:
       - dev
+      - development
       - qa
       - uat
       - sit
