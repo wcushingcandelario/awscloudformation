@@ -12,6 +12,7 @@ Metadata:
         default: 'Environment Setup'
       Parameters:
       - EnvironmentType
+      - ProjectName
       - InstanceType
       - SSHKeyName
     - Label:
@@ -57,7 +58,7 @@ Parameters:
     ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
   POSURL:
     Description: OVC Server URL.
-    Default: http://sample.ovcdemo.com:8080
+    Default: https://sample.ovcdemo.com
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   SQLHOST:
@@ -230,6 +231,12 @@ Resources:
           Value: "Dashboard"
         - Key: "Environment"
           Value: !Ref EnvironmentType
+        - Key: "Project"
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+        - Key: LiveIdentifier
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
 
   DNSRecord:
     Type: AWS::Route53::RecordSet
