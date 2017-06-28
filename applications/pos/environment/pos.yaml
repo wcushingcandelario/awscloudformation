@@ -217,7 +217,7 @@ Resources:
 
       Tags:
         - Key: "Role"
-          Value: "PromoEngine"
+          Value: "POS"
         - Key: "Environment"
           Value: !Ref EnvironmentType
         - Key: "Project"
