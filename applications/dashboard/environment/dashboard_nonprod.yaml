@@ -80,6 +80,14 @@ Parameters:
     Description: NewRelic license key.
     Type: String
     Default: ''
+  MinASGSize:
+    Description: 'Minimum number of instances running'
+    Type: Number
+    Default: 1
+  MaxASGSize:
+    Description: 'Maximum number of instances running'
+    Type: Number
+    Default: 3
   HostedZoneId:
     Description: 'The Hosted Zone ID used to create Record Sets (URLs)'
     Type: String
@@ -104,6 +112,22 @@ Resources:
         'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardConfigurationTemplate'
       OptionSettings:
 
+        # Scaling Settings
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: !Ref MinASGSize
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: !Ref MaxASGSize
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateEnabled
+          Value: true
+        - Namespace: aws:autoscaling:updatepolicy:rollingupdate
+          OptionName: RollingUpdateType
+          Value: Health
         # Settings
         - Namespace: aws:elasticbeanstalk:healthreporting:system
           OptionName: SystemType
