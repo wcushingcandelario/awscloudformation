@@ -80,6 +80,12 @@ Parameters:
     Description: NewRelic license key.
     Type: String
     Default: ''
+  HostedZoneId:
+    Description: 'The Hosted Zone ID used to create Record Sets (URLs)'
+    Type: String
+  HostedZoneDomainName:
+    Description: 'The Domain Name with extension used to create Record Sets (URLs). eg: ovcdemo.com'
+    Type: String
 
 Conditions:
   NewRelicKeyPresent: !Not
@@ -162,21 +168,20 @@ Resources:
           OptionName: POS_URL
           Value: !Ref POSURL
 
-  # DNSRecord:
-  #   Type: AWS::Route53::RecordSet
-  #   DependsOn: PromotionServerEnvironment
-  #   Properties:
-  #     HostedZoneId:
-  #       'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardHostedZoneId'
-  #     # Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
-  #     Name: !Join ['', [!Ref 'PROMOPATHHOSTNAME', ., 'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardHostedZoneDomainName']]
-  #     Type: CNAME
-  #     TTL: '60'
-  #     ResourceRecords:
-  #     - !GetAtt PromotionServerEnvironment.EndpointURL
-
       Tags:
         - Key: "Role"
           Value: "PromoEngine"
         - Key: "Environment"
           Value: !Ref EnvironmentType
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: DashboardEnvironment
+    Properties:
+      HostedZoneId:
+        !Ref 'HostedZoneId'
+      Name: !Join ['', [!Sub '${EnvironmentType}-dash', ., !Ref 'HostedZoneDomainName']]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt DashboardEnvironment.EndpointURL
