@@ -128,6 +128,24 @@ Resources:
         - Namespace: aws:autoscaling:updatepolicy:rollingupdate
           OptionName: RollingUpdateType
           Value: Health
+
+        # VPC Network Settings
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsAppPrivate'
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
+        - Namespace: aws:ec2:vpc
+          OptionName: AssociatePublicIpAddress
+          Value: false
+
         # Settings
         - Namespace: aws:elasticbeanstalk:healthreporting:system
           OptionName: SystemType
