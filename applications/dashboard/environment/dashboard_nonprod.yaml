@@ -106,10 +106,11 @@ Conditions:
       - !Ref NewRelicLicenseKey
 
 Resources:
-  PromotionServerEnvironment:
+  DashboardEnvironment:
     Type: "AWS::ElasticBeanstalk::Environment"
     Properties:
-      ApplicationName: dashboard-app-Dashboard-MGLCDV29I080
+      ApplicationName:
+        'Fn::ImportValue': DashboardApplication
       Description: Dashboard
       EnvironmentName: !Sub '${EnvironmentType}-dashboard'
       SolutionStackName: !Ref SolutionStackName
@@ -221,7 +222,7 @@ Resources:
 
       Tags:
         - Key: "Role"
-          Value: "PromoEngine"
+          Value: "Dashboard"
         - Key: "Environment"
           Value: !Ref EnvironmentType
 
