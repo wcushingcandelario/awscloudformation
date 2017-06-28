@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Development promotion environment template.'
+Description: 'Dashboard environment template.'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -156,6 +156,11 @@ Resources:
         - Namespace: aws:elasticbeanstalk:healthreporting:system
           OptionName: SystemType
           Value: enhanced
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value:
+            'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardSecurityGroup'
+
         # Environment Settings
         - Namespace: aws:elasticbeanstalk:environment
           OptionName: ServiceRole
