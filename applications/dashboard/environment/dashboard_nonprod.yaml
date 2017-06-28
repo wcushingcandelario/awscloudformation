@@ -76,6 +76,16 @@ Parameters:
     Description: MySQL Database user.
     Type: String
     ConstraintDescription: Specify the user for MySQL.
+  NewRelicLicenseKey:
+    Description: NewRelic license key.
+    Type: String
+    Default: ''
+
+Conditions:
+  NewRelicKeyPresent: !Not
+    - !Equals
+      - ''
+      - !Ref NewRelicLicenseKey
 
 Resources:
   PromotionServerEnvironment:
@@ -114,6 +124,26 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: EC2KeyName
           Value: !Ref SSHKeyName
+
+          # NewRelic Variables
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LICENSE_KEY
+          Value: !If
+            - NewRelicKeyPresent
+            - !Ref NewRelicLicenseKey
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_APP_NAME
+          Value: !If
+            - NewRelicKeyPresent
+            - !Sub '${EnvironmentType}-dash'
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LOG
+          Value: !If
+            - NewRelicKeyPresent
+            - '/var/log/newrelic_agent.log'
+            - !Ref 'AWS::NoValue'
 
           # Environment Variables
         - Namespace: aws:elasticbeanstalk:application:environment
