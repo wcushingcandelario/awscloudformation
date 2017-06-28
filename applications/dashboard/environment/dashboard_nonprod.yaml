@@ -94,6 +94,10 @@ Parameters:
   HostedZoneDomainName:
     Description: 'The Domain Name with extension used to create Record Sets (URLs). eg: ovcdemo.com'
     Type: String
+  SolutionStackName:
+    Description: 'The solution stack used'
+    Type: String
+    Default: '64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)'
 
 Conditions:
   NewRelicKeyPresent: !Not
@@ -108,6 +112,7 @@ Resources:
       ApplicationName: dashboard-app-Dashboard-MGLCDV29I080
       Description: Dashboard
       EnvironmentName: !Sub '${EnvironmentType}-dashboard'
+      SolutionStackName: !Ref SolutionStackName
       TemplateName:
         'Fn::ImportValue': !Sub '${ParentVPCStack}-DashboardConfigurationTemplate'
       OptionSettings:
