@@ -96,6 +96,9 @@ Parameters:
   HostedZoneId:
     Description: 'The Hosted Zone ID used to create Record Sets (URLs)'
     Type: String
+  HostedZoneIdPublic:
+    Description: 'PUBLIC Hosted Zone Id for the Route53 domain to create the ELB DNS entry.'
+    Type: String
   HostedZoneDomainName:
     Description: 'The Domain Name with extension used to create Record Sets (URLs). eg: ovcdemo.com'
     Type: String
@@ -238,3 +241,49 @@ Resources:
       TTL: '60'
       ResourceRecords:
       - !GetAtt POSServerEnvironment.EndpointURL
+
+  PublicLoadBalancer:
+    Type: 'AWS::ElasticLoadBalancing::LoadBalancer'
+    Properties:
+      Subnets:
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetAPublic'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPublic'
+        - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPublic'
+      Listeners:
+      - InstancePort: 443
+        InstanceProtocol: SSL
+        LoadBalancerPort: 443
+        Protocol: SSL
+        SSLCertificateId: !Ref CertificateId
+      HealthCheck:
+        HealthyThreshold: 2
+        Interval: 15
+        Target: 'HTTPS:443/'
+        Timeout: 10
+        UnhealthyThreshold: 3
+      SecurityGroups:
+      - 'Fn::ImportValue': !Sub '${ParentVPCStack}-POSLoadBalancerSecurityGroup'
+      - !Ref PublicPOSLoadBalancerCustomerAccessSecurityGroup
+      Scheme: 'internet-facing'
+      CrossZone: !Ref CrossZoneLoadBalancing
+      Tags:
+      - Key: Environment
+        Value: !Ref EnvironmentType
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+
+  PublicLoadBalancerDNSEntry:
+    Type: AWS::Route53::RecordSet
+    DependsOn: PublicLoadBalancer
+    Properties:
+      HostedZoneId: !Ref 'HostedZoneIdPublic'
+      Comment: !Sub '${ParentVPCStack}-POSServer-PublicLoadBalancer'
+      Name: !Join ['', [!Sub '${EnvironmentType}-pos', ., !Ref 'HostedZoneDomainName']]
+      Type: CNAME
+      TTL: '60'
+      ResourceRecords:
+      - !GetAtt PublicLoadBalancer.DNSName
