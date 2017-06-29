@@ -250,8 +250,8 @@ Resources:
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetBPublic'
         - 'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetCPublic'
       Listeners:
-      - InstancePort: 443
-        InstanceProtocol: SSL
+      - InstancePort: 80
+        InstanceProtocol: TCP
         LoadBalancerPort: 443
         Protocol: SSL
         SSLCertificateId: !Ref CertificateId
