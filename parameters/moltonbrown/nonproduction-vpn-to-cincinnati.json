@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+     {
+          "ParameterKey": "CustomerGatewayIpAddress",
+          "ParameterValue": "216.68.200.2"
+      },
+     {
+          "ParameterKey": "DestinationCidrBlock",
+          "ParameterValue": "10.0.0.0/16"
+      },
+     {
+          "ParameterKey": "DestinationName",
+          "ParameterValue": "mb-cincinnati"
+      }
+]
