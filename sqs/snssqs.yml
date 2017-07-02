@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates the SNS topic, SQS queue and instance that will service
+Parameters:
+  AppName:
+    Type: String
+    AllowedValues: 
+      - mb
+      - dt
+      - ovcdemo
+      - ovc
+  ComponentName:
+    Type: String
+    AllowedValues:
+      - cross_channel   
+      - csl               
+      - dashboard         
+      - inventory_manager 
+      - pos               
+      - promotion_engine
+  EnvName:
+    Type: String
+    AllowedValues:
+      - uat1
+      - uat2
+      - sit
+      - preprod
+Resources:
+  TLogBackOfficeQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: 
+        Fn::Join: [ "-", [Ref: AppName, Ref: ComponentName, Ref: EnvName, "BackOffice-Queue" ]]
+  TLogIMQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: 
+        Fn::Join: [ "-", [Ref: AppName, Ref: ComponentName, Ref: EnvName, "IM-Queue" ]]
+  TLogReportingQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: 
+        Fn::Join: [ "-", [Ref: AppName, Ref: ComponentName, Ref: EnvName, "Reporting-Queue" ]]
+
+
+  TLogSubscribers:
+    Type: "AWS::SNS::Topic"
+    Properties:
+            DisplayName: String
+            Subscription:
+              -
+                Endpoint:
+                  Fn::GetAtt: [TLogBackOfficeQueue, Arn]
+                Protocol: "sqs"
+              -
+                Endpoint:
+                  Fn::GetAtt: [TLogIMQueue, Arn]
+                Protocol: "sqs"
+              -
+                Endpoint:
+                  Fn::GetAtt: [TLogReportingQueue, Arn]
+                Protocol: "sqs"
+            TopicName: 
+              Fn::Join: [ "-", [Ref: AppName, Ref: ComponentName, Ref: EnvName, "TLog-Subscribers" ]]
+Outputs:
+  TLogBackofficeQueueName:
+    Description: "Queue created for TLog BackOffice Subscriber:"
+    Value: 
+      Ref: TLogBackOfficeQueue
+  TLogIMQueueName:
+    Description: "Queue created for TLog IM Subscriber:"
+    Value: 
+      Ref: TLogIMQueue
+  TLogReportingQueueName:
+    Description: "Queue created for TLog Reporting Subscriber:"
+    Value: 
+      Ref: TLogBackOfficeQueue
