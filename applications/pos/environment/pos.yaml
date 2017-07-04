@@ -195,11 +195,143 @@ Resources:
 
           # NewRelic Variables
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: NEW_RELIC_LICENSE_KEY
-          Value: !If
-            - NewRelicKeyPresent
-            - !Ref NewRelicLicenseKey
-            - !Ref 'AWS::NoValue'
+          OptionName: APPDATAIMPORTER_ASYNC
+          Value: !Ref APPDATAIMPORTER_ASYNC
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: APPDATAIMPORTER_USELOCALHASHCODES
+          Value: !Ref APPDATAIMPORTER_USELOCALHASHCODES
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_CLIENT_ID
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_CLIENT_ID
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_CLIENT_SECRET
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_CLIENT_SECRET
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_GRANT_TYPE
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_GRANT_TYPE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_HOST
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_HOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_PORT
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_PORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_SCHEME
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_SCHEME
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_TOKEN_HOST
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_TOKEN_HOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_TOKEN_PORT
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_TOKEN_PORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_TOKEN_URL
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_TOKEN_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ATG_ECOMMERCE_CUSTOMER_URL
+          Value: !Ref ATG_ECOMMERCE_CUSTOMER_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COMM_ADJUST_EXPORT_URL
+          Value: !Ref COMM_ADJUST_EXPORT_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COMM_PO_ASN_URL
+          Value: !Ref COMM_PO_ASN_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COMM_PO_SUBMIT_URL
+          Value: !Ref COMM_PO_SUBMIT_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COMM_RETURN_EXPORT_URL
+          Value: !Ref COMM_RETURN_EXPORT_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COMM_STOCKSYNC_URL
+          Value: !Ref COMM_STOCKSYNC_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COMM_STOCK_EXPORT_URL
+          Value: !Ref COMM_STOCK_EXPORT_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COMM_TLOG_URL
+          Value: !Ref COMM_TLOG_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: CUSTDATAIMPORTER_ASYNC
+          Value: !Ref CUSTDATAIMPORTER_ASYNC
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: CUSTDATAIMPORTER_IGNOREJSONVALIDATIONERRORS
+          Value: !Ref CUSTDATAIMPORTER_IGNOREJSONVALIDATIONERRORS
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: EXPORT_PRODUCT_CATALOG_NAME
+          Value: !Ref EXPORT_PRODUCT_CATALOG_NAME
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: EXPORT_PRODUCT_TYPE
+          Value: !Ref EXPORT_PRODUCT_TYPE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: GRANT_TYPE_PWD
+          Value: !Ref GRANT_TYPE_PWD
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORTER_MODE
+          Value: !Ref IMPORTER_MODE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORTFILES_EXTERNALUSERDIR
+          Value: !Ref IMPORTFILES_EXTERNALUSERDIR
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORTFILES_POSTPRODUCTSIMPORTSDIR
+          Value: !Ref IMPORTFILES_POSTPRODUCTSIMPORTSDIR
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORTFILES_ROOTLOCATIONSDIR
+          Value: !Ref IMPORTFILES_ROOTLOCATIONSDIR
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORTFILES_STANDALONEIMPORTSDIR
+          Value: !Ref IMPORTFILES_STANDALONEIMPORTSDIR
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_CANCELDRAFTORDER_URL
+          Value: !Ref IMPORT_CANCELDRAFTORDER_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_COMPLETEORDER_URL
+          Value: !Ref IMPORT_COMPLETEORDER_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_ENDPOINT_TEMP_LOCATION
+          Value: !Ref IMPORT_ENDPOINT_TEMP_LOCATION
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_FORCECLOSEORDER_URL
+          Value: !Ref IMPORT_FORCECLOSEORDER_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_LOCPRODUCT_FROMSTOCK
+          Value: !Ref IMPORT_LOCPRODUCT_FROMSTOCK
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_REPLENISHMENT_URL
+          Value: !Ref IMPORT_REPLENISHMENT_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCKEXPORT_URL
+          Value: !Ref IMPORT_STOCKEXPORT_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_BALANCETYPE
+          Value: !Ref IMPORT_STOCK_BALANCETYPE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_HOST
+          Value: !Ref IMPORT_STOCK_HOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_OAUTH_CODE_URL
+          Value: !Ref IMPORT_STOCK_OAUTH_CODE_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_OAUTH_CODE_VALUE
+          Value: !Ref IMPORT_STOCK_OAUTH_CODE_VALUE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_OAUTH_PORT
+          Value: !Ref IMPORT_STOCK_OAUTH_PORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_PORT
+          Value: !Ref IMPORT_STOCK_PORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_SCHEME
+          Value: !Ref IMPORT_STOCK_SCHEME
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_TYPE
+          Value: !Ref IMPORT_STOCK_TYPE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: IMPORT_STOCK_URL
+          Value: !Ref IMPORT_STOCK_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JNDI_DS_URL
+          Value: !Ref JNDI_DS_URL
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: NEW_RELIC_APP_NAME
           Value: !If
@@ -207,11 +339,95 @@ Resources:
             - !Sub '${EnvironmentType}-pos'
             - !Ref 'AWS::NoValue'
         - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: NEW_RELIC_LICENSE_KEY
+          Value: !If
+            - NewRelicKeyPresent
+            - !Ref NewRelicLicenseKey
+            - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: NEW_RELIC_LOG
           Value: !If
             - NewRelicKeyPresent
             - '/var/log/newrelic_agent.log'
             - !Ref 'AWS::NoValue'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OAUTH_ENDPOINT_URL
+          Value: !Ref OAUTH_ENDPOINT_URL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OAUTH_REQUIRED
+          Value: !Ref OAUTH_REQUIRED
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_DB
+          Value: !Ref OVCDB_DB
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_DRIVER
+          Value: !Ref OVCDB_DRIVER
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_ENCRYPTED_PASSWORD
+          Value: !Ref OVCDB_ENCRYPTED_PASSWORD
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_HOST
+          Value: !Ref OVCDB_HOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_PARAMS
+          Value: !Ref OVCDB_PARAMS
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_PORT
+          Value: !Ref OVCDB_PORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_SCHEME
+          Value: !Ref OVCDB_SCHEME
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCDB_USERNAME
+          Value: !Ref OVCDB_USERNAME
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCNOSQLDB_DB
+          Value: !Ref OVCNOSQLDB_DB
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCNOSQLDB_URI
+          Value: !Ref OVCNOSQLDB_URI
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_ADOPATH
+          Value: !Ref OVCSERVER_ADOPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_CUSTOMER-ALL
+          Value: !Ref OVCSERVER_CUSTOMER-ALL
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_HOST
+          Value: !Ref OVCSERVER_HOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_PROP_DIR
+          Value: !Ref OVCSERVER_PROP_DIR
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_REPO_LOC
+          Value: !Ref OVCSERVER_REPO_LOC
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_SCHEME
+          Value: !Ref OVCSERVER_SCHEME
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_WEBCONTEXT
+          Value: !Ref OVCSERVER_WEBCONTEXT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: PASSWORD
+          Value: !Ref PASSWORD
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POSMCLIENTSYNCUPDATER_BROWSER
+          Value: !Ref POSMCLIENTSYNCUPDATER_BROWSER
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POSMCLIENTSYNCUPDATER_CONCURRENTDEVICES
+          Value: !Ref POSMCLIENTSYNCUPDATER_CONCURRENTDEVICES
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POSMCLIENTSYNCUPDATER_CONCURRENTSTORES
+          Value: !Ref POSMCLIENTSYNCUPDATER_CONCURRENTSTORES
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: POSMCLIENTSYNCUPDATER_STORE
+          Value: !Ref POSMCLIENTSYNCUPDATER_STORE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SCOPE
+          Value: !Ref SCOPE
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: USERNAME
+          Value: !Ref USERNAME
 
           # Environment Variables
         # - Namespace: aws:elasticbeanstalk:application:environment
