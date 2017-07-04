@@ -18,24 +18,86 @@ Metadata:
     - Label:
         default: 'Environment Configuration'
       Parameters:
-      - OVCURL
-      - MONGOURL
-      - DASHPATH
-      - MAXPROMOID
-      - PROMOPATH
+      - APPDATAIMPORTER_ASYNC
+      - APPDATAIMPORTER_USELOCALHASHCODES
+      - ATG_ECOMMERCE_CUSTOMER_CLIENT_ID
+      - ATG_ECOMMERCE_CUSTOMER_CLIENT_SECRET
+      - ATG_ECOMMERCE_CUSTOMER_GRANT_TYPE
+      - ATG_ECOMMERCE_CUSTOMER_HOST
+      - ATG_ECOMMERCE_CUSTOMER_PORT
+      - ATG_ECOMMERCE_CUSTOMER_SCHEME
+      - ATG_ECOMMERCE_CUSTOMER_TOKEN_HOST
+      - ATG_ECOMMERCE_CUSTOMER_TOKEN_PORT
+      - ATG_ECOMMERCE_CUSTOMER_TOKEN_URL
+      - ATG_ECOMMERCE_CUSTOMER_URL
+      - COMM_ADJUST_EXPORT_URL
+      - COMM_PO_ASN_URL
+      - COMM_PO_SUBMIT_URL
+      - COMM_RETURN_EXPORT_URL
+      - COMM_STOCKSYNC_URL
+      - COMM_STOCK_EXPORT_URL
+      - COMM_TLOG_URL
+      - CUSTDATAIMPORTER_ASYNC
+      - CUSTDATAIMPORTER_IGNOREJSONVALIDATIONERRORS
+      - EXPORT_PRODUCT_CATALOG_NAME
+      - EXPORT_PRODUCT_TYPE
+      - GRANT_TYPE_PWD
+      - IMPORTER_MODE
+      - IMPORTFILES_EXTERNALUSERDIR
+      - IMPORTFILES_POSTPRODUCTSIMPORTSDIR
+      - IMPORTFILES_ROOTLOCATIONSDIR
+      - IMPORTFILES_STANDALONEIMPORTSDIR
+      - IMPORT_CANCELDRAFTORDER_URL
+      - IMPORT_COMPLETEORDER_URL
+      - IMPORT_ENDPOINT_TEMP_LOCATION
+      - IMPORT_FORCECLOSEORDER_URL
+      - IMPORT_LOCPRODUCT_FROMSTOCK
+      - IMPORT_REPLENISHMENT_URL
+      - IMPORT_STOCKEXPORT_URL
+      - IMPORT_STOCK_BALANCETYPE
+      - IMPORT_STOCK_HOST
+      - IMPORT_STOCK_OAUTH_CODE_URL
+      - IMPORT_STOCK_OAUTH_CODE_VALUE
+      - IMPORT_STOCK_OAUTH_PORT
+      - IMPORT_STOCK_PORT
+      - IMPORT_STOCK_SCHEME
+      - IMPORT_STOCK_TYPE
+      - IMPORT_STOCK_URL
+      - JNDI_DS_URL
+      - NEW_RELIC_APP_NAME
+      - NEW_RELIC_LICENSE_KEY
+      - NEW_RELIC_LOG
+      - OAUTH_ENDPOINT_URL
+      - OAUTH_REQUIRED
+      - OVCDB_DB
+      - OVCDB_DRIVER
+      - OVCDB_ENCRYPTED_PASSWORD
+      - OVCDB_HOST
+      - OVCDB_PARAMS
+      - OVCDB_PORT
+      - OVCDB_SCHEME
+      - OVCDB_USERNAME
+      - OVCNOSQLDB_DB
+      - OVCNOSQLDB_URI
+      - OVCSERVER_ADOPATH
+      - OVCSERVER_CUSTOMER-ALL
+      - OVCSERVER_HOST
+      - OVCSERVER_IMPORTFILESPATH
+      - OVCSERVER_PORT
+      - OVCSERVER_PROP_DIR
+      - OVCSERVER_REPO_LOC
+      - OVCSERVER_SCHEME
+      - OVCSERVER_WEBCONTEXT
+      - PASSWORD
+      - POSMCLIENTSYNCUPDATER_BROWSER
+      - POSMCLIENTSYNCUPDATER_CONCURRENTDEVICES
+      - POSMCLIENTSYNCUPDATER_CONCURRENTSTORES
+      - POSMCLIENTSYNCUPDATER_STORE
+      - SCOPE
+      - USERNAME
     ParameterLabels:
       EnvironmentType:
         default: "Specify the type of environment this instance will be used in."
-      OVCURL:
-        default: "Specify the URL for the OVC server. eg: http://devmysql.ovcdemo.com:8080"
-      MONGOURL:
-        default: "Specify the URL for the MongoDB connection.  eg: mongodb://mongodb.ovcdemo.ovc/dbname"
-      DASHPATH:
-        default: "Specify the URL for the OVC Dashboard. eg: http://devmysql.ovcdemo.com/ovcdashboard/"
-      MAXPROMOID:
-        default: "Specify the maximum length of the Promo IDs expressed with 9s. eg: 999999"
-      PROMOPATH:
-        default: "Specify the URL for the OVC POS. eg: http://dev-promo.ovcdemo.com:3000/promotions/"
 
 Parameters:
   ParentVPCStack:
@@ -66,21 +128,6 @@ Parameters:
     Description: SSH Key Name.
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: 'The SSH key pair that is used for SSH to the instances.'
-  OVCURL:
-    Description: OVC Server URL.
-    Default: http://sample.ovcdemo.com:8080
-    Type: String
-    ConstraintDescription: Specify the URL for the OVC server.
-  MONGOURL:
-    Description: Mongo URL.
-    Default: mongodb://sample.ovcdemo.ovc/dbname
-    Type: String
-    ConstraintDescription: Specify the URL for MongoDB.
-  DASHPATH:
-    Description: OVC Dashboard URL.
-    Default: http://sample.ovcdemo.com/ovcdashboard/
-    Type: String
-    ConstraintDescription: Specify the URL for the OVC Dashboard.
   NewRelicLicenseKey:
     Description: NewRelic license key.
     Type: String
@@ -105,6 +152,331 @@ Parameters:
   SolutionStackName:
     Description: 'The solution stack used'
     Type: String
+  APPDATAIMPORTER_ASYNC:
+    Description: APPDATAIMPORTER_ASYNC
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  APPDATAIMPORTER_USELOCALHASHCODES:
+    Description: APPDATAIMPORTER_USELOCALHASHCODES
+    Default: true
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_CLIENT_ID:
+    Description: ATG_ECOMMERCE_CUSTOMER_CLIENT_ID
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_CLIENT_SECRET:
+    Description: ATG_ECOMMERCE_CUSTOMER_CLIENT_SECRET
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_GRANT_TYPE:
+    Description: ATG_ECOMMERCE_CUSTOMER_GRANT_TYPE
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_HOST:
+    Description: ATG_ECOMMERCE_CUSTOMER_HOST
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_PORT:
+    Description: ATG_ECOMMERCE_CUSTOMER_PORT
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_SCHEME:
+    Description: ATG_ECOMMERCE_CUSTOMER_SCHEME
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_TOKEN_HOST:
+    Description: ATG_ECOMMERCE_CUSTOMER_TOKEN_HOST
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_TOKEN_PORT:
+    Description: ATG_ECOMMERCE_CUSTOMER_TOKEN_PORT
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_TOKEN_URL:
+    Description: ATG_ECOMMERCE_CUSTOMER_TOKEN_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  ATG_ECOMMERCE_CUSTOMER_URL:
+    Description: ATG_ECOMMERCE_CUSTOMER_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  COMM_ADJUST_EXPORT_URL:
+    Description: COMM_ADJUST_EXPORT_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  COMM_PO_ASN_URL:
+    Description: COMM_PO_ASN_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  COMM_PO_SUBMIT_URL:
+    Description: COMM_PO_SUBMIT_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  COMM_RETURN_EXPORT_URL:
+    Description: COMM_RETURN_EXPORT_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  COMM_STOCKSYNC_URL:
+    Description: COMM_STOCKSYNC_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  COMM_STOCK_EXPORT_URL:
+    Description: COMM_STOCK_EXPORT_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  COMM_TLOG_URL:
+    Description: COMM_TLOG_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  CUSTDATAIMPORTER_ASYNC:
+    Description: CUSTDATAIMPORTER_ASYNC
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  CUSTDATAIMPORTER_IGNOREJSONVALIDATIONERRORS:
+    Description: CUSTDATAIMPORTER_IGNOREJSONVALIDATIONERRORS
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  EXPORT_PRODUCT_CATALOG_NAME:
+    Description: EXPORT_PRODUCT_CATALOG_NAME
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  EXPORT_PRODUCT_TYPE:
+    Description: EXPORT_PRODUCT_TYPE
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  GRANT_TYPE_PWD:
+    Description: GRANT_TYPE_PWD
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORTER_MODE:
+    Description: IMPORTER_MODE
+    Default: production
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORTFILES_EXTERNALUSERDIR:
+    Description: IMPORTFILES_EXTERNALUSERDIR
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORTFILES_POSTPRODUCTSIMPORTSDIR:
+    Description: IMPORTFILES_POSTPRODUCTSIMPORTSDIR
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORTFILES_ROOTLOCATIONSDIR:
+    Description: IMPORTFILES_ROOTLOCATIONSDIR
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORTFILES_STANDALONEIMPORTSDIR:
+    Description: IMPORTFILES_STANDALONEIMPORTSDIR
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_CANCELDRAFTORDER_URL:
+    Description: IMPORT_CANCELDRAFTORDER_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_COMPLETEORDER_URL:
+    Description: IMPORT_COMPLETEORDER_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_ENDPOINT_TEMP_LOCATION:
+    Description: IMPORT_ENDPOINT_TEMP_LOCATION
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_FORCECLOSEORDER_URL:
+    Description: IMPORT_FORCECLOSEORDER_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_LOCPRODUCT_FROMSTOCK:
+    Description: IMPORT_LOCPRODUCT_FROMSTOCK
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_REPLENISHMENT_URL:
+    Description: IMPORT_REPLENISHMENT_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCKEXPORT_URL:
+    Description: IMPORT_STOCKEXPORT_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_BALANCETYPE:
+    Description: IMPORT_STOCK_BALANCETYPE
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_HOST:
+    Description: IMPORT_STOCK_HOST
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_OAUTH_CODE_URL:
+    Description: IMPORT_STOCK_OAUTH_CODE_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_OAUTH_CODE_VALUE:
+    Description: IMPORT_STOCK_OAUTH_CODE_VALUE
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_OAUTH_PORT:
+    Description: IMPORT_STOCK_OAUTH_PORT
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_PORT:
+    Description: IMPORT_STOCK_PORT
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_SCHEME:
+    Description: IMPORT_STOCK_SCHEME
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_TYPE:
+    Description: IMPORT_STOCK_TYPE
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  IMPORT_STOCK_URL:
+    Description: IMPORT_STOCK_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  JNDI_DS_URL:
+    Description: JNDI_DS_URL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  NEW_RELIC_APP_NAME:
+    Description: NEW_RELIC_APP_NAME
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  NEW_RELIC_LICENSE_KEY:
+    Description: NEW_RELIC_LICENSE_KEY
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  NEW_RELIC_LOG:
+    Description: NEW_RELIC_LOG
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OAUTH_ENDPOINT_URL:
+    Description: OAUTH_ENDPOINT_URL
+    Default: /oauth/token
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OAUTH_REQUIRED:
+    Description: OAUTH_REQUIRED
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_DB:
+    Description: OVCDB_DB
+    Default: xdb
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_DRIVER:
+    Description: OVCDB_DRIVER
+    Default: org.mariadb.jdbc.Driver
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_ENCRYPTED_PASSWORD:
+    Description: OVCDB_ENCRYPTED_PASSWORD
+    Default: L3Q5kQqII0OlaJ9FGCaukQ==
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_HOST:
+    Description: OVCDB_HOST
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_PARAMS:
+    Description: OVCDB_PARAMS
+    Default: autoReconnect=true
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_PORT:
+    Description: OVCDB_PORT
+    Default: 3306
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_SCHEME:
+    Description: OVCDB_SCHEME
+    Default: jdbc:mysql
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCDB_USERNAME:
+    Description: OVCDB_USERNAME
+    Default: root
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCNOSQLDB_DB:
+    Description: OVCNOSQLDB_DB
+    Default: xdb
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCNOSQLDB_URI:
+    Description: OVCNOSQLDB_URI
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_ADOPATH:
+    Description: OVCSERVER_ADOPATH
+    Default:  /opt/ovc/Application-Dynamic-Objects
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_CUSTOMER-ALL:
+    Description: OVCSERVER_CUSTOMER-ALL
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_HOST:
+    Description: OVCSERVER_HOST
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_IMPORTFILESPATH:
+    Description: OVCSERVER_IMPORTFILESPATH
+    Default: /opt/ovc/Base-Location-Import-Files/ovc-all-OvcStore
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_PORT:
+    Description: OVCSERVER_PORT
+    Default: 443
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_PROP_DIR:
+    Description: OVCSERVER_PROP_DIR
+    Default: /opt/ovc/Platform-Dynamic-Objects/config
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_REPO_LOC:
+    Description: OVCSERVER_REPO_LOC
+    Default: /opt/ovc/Platform-Dynamic-Objects
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_SCHEME:
+    Description: OVCSERVER_SCHEME
+    Default: https
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  OVCSERVER_WEBCONTEXT:
+    Description: OVCSERVER_WEBCONTEXT
+    Default: /
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  PASSWORD:
+    Description: PASSWORD
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  POSMCLIENTSYNCUPDATER_BROWSER:
+    Description: POSMCLIENTSYNCUPDATER_BROWSER
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  POSMCLIENTSYNCUPDATER_CONCURRENTDEVICES:
+    Description: POSMCLIENTSYNCUPDATER_CONCURRENTDEVICES
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  POSMCLIENTSYNCUPDATER_CONCURRENTSTORES:
+    Description: POSMCLIENTSYNCUPDATER_CONCURRENTSTORES
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  POSMCLIENTSYNCUPDATER_STORE:
+    Description: POSMCLIENTSYNCUPDATER_STORE
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  SCOPE:
+    Description: SCOPE
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
+  USERNAME:
+    Description: USERNAME
+    Type: String
+    ConstraintDescription: Specify the URL for the OVC server.
 
 Conditions:
   NewRelicKeyPresent: !Not
@@ -395,6 +767,12 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: OVCSERVER_HOST
           Value: !Ref OVCSERVER_HOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_IMPORTFILESPATH
+          Value: !Ref OVCSERVER_IMPORTFILESPATH
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OVCSERVER_PORT
+          Value: !Ref OVCSERVER_PORT
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: OVCSERVER_PROP_DIR
           Value: !Ref OVCSERVER_PROP_DIR
