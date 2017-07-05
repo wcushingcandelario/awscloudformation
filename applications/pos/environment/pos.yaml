@@ -154,6 +154,7 @@ Parameters:
     Type: String
   APPDATAIMPORTER_ASYNC:
     Description: APPDATAIMPORTER_ASYNC
+    Default: true
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   APPDATAIMPORTER_USELOCALHASHCODES:
@@ -171,6 +172,7 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_GRANT_TYPE:
     Description: ATG_ECOMMERCE_CUSTOMER_GRANT_TYPE
+    Default: client_credentials
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_HOST:
@@ -179,10 +181,12 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_PORT:
     Description: ATG_ECOMMERCE_CUSTOMER_PORT
+    Default: 8443
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_SCHEME:
     Description: ATG_ECOMMERCE_CUSTOMER_SCHEME
+    Default: https
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_TOKEN_HOST:
@@ -191,10 +195,12 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_TOKEN_PORT:
     Description: ATG_ECOMMERCE_CUSTOMER_TOKEN_PORT
+    Default: 443
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_TOKEN_URL:
     Description: ATG_ECOMMERCE_CUSTOMER_TOKEN_URL
+    Default: /v1/identity/token
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   ATG_ECOMMERCE_CUSTOMER_URL:
@@ -203,6 +209,7 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   COMM_ADJUST_EXPORT_URL:
     Description: COMM_ADJUST_EXPORT_URL
+    Default: /rest/model/atg/userprofiling/v1/profile/
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   COMM_PO_ASN_URL:
@@ -231,22 +238,28 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   CUSTDATAIMPORTER_ASYNC:
     Description: CUSTDATAIMPORTER_ASYNC
+    Default: false
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   CUSTDATAIMPORTER_IGNOREJSONVALIDATIONERRORS:
     Description: CUSTDATAIMPORTER_IGNOREJSONVALIDATIONERRORS
+    Default: true
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   EXPORT_PRODUCT_CATALOG_NAME:
     Description: EXPORT_PRODUCT_CATALOG_NAME
+    Default: apparelProductCatalog
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   EXPORT_PRODUCT_TYPE:
     Description: EXPORT_PRODUCT_TYPE
+    Default: ApparelProduct
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   GRANT_TYPE_PWD:
     Description: GRANT_TYPE_PWD
+    Default: password
+    Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORTER_MODE:
     Description: IMPORTER_MODE
@@ -255,50 +268,62 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORTFILES_EXTERNALUSERDIR:
     Description: IMPORTFILES_EXTERNALUSERDIR
+    Default: importDefaultExternalUser
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORTFILES_POSTPRODUCTSIMPORTSDIR:
     Description: IMPORTFILES_POSTPRODUCTSIMPORTSDIR
+    Default: eCommerceImportFiles2
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORTFILES_ROOTLOCATIONSDIR:
     Description: IMPORTFILES_ROOTLOCATIONSDIR
+    Default: importRootLocations
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORTFILES_STANDALONEIMPORTSDIR:
     Description: IMPORTFILES_STANDALONEIMPORTSDIR
+    Default: eCommerceImportFiles
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_CANCELDRAFTORDER_URL:
     Description: IMPORT_CANCELDRAFTORDER_URL
+    Default: cancelDraftOrder
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_COMPLETEORDER_URL:
     Description: IMPORT_COMPLETEORDER_URL
+    Default: api_updateCompleted
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_ENDPOINT_TEMP_LOCATION:
     Description: IMPORT_ENDPOINT_TEMP_LOCATION
+    Default: /tmp
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_FORCECLOSEORDER_URL:
     Description: IMPORT_FORCECLOSEORDER_URL
+    Default: forceCloseOrder
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_LOCPRODUCT_FROMSTOCK:
     Description: IMPORT_LOCPRODUCT_FROMSTOCK
+    Default: false
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_REPLENISHMENT_URL:
     Description: IMPORT_REPLENISHMENT_URL
+    Default: api_createreplenishmentorder
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCKEXPORT_URL:
     Description: IMPORT_STOCKEXPORT_URL
+    Default: stockbalances
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_BALANCETYPE:
     Description: IMPORT_STOCK_BALANCETYPE
+    Default: ats
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_HOST:
@@ -307,30 +332,37 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_OAUTH_CODE_URL:
     Description: IMPORT_STOCK_OAUTH_CODE_URL
+    Default: /oauth/code
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_OAUTH_CODE_VALUE:
     Description: IMPORT_STOCK_OAUTH_CODE_VALUE
+    Default: jmsuser
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_OAUTH_PORT:
     Description: IMPORT_STOCK_OAUTH_PORT
+    Default: 3009
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_PORT:
     Description: IMPORT_STOCK_PORT
+    Default: 3007
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_SCHEME:
     Description: IMPORT_STOCK_SCHEME
+    Default: https
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_TYPE:
     Description: IMPORT_STOCK_TYPE
+    Default: product
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   IMPORT_STOCK_URL:
     Description: IMPORT_STOCK_URL
+    Default: stockbalances
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   JNDI_DS_URL:
@@ -455,26 +487,32 @@ Parameters:
     ConstraintDescription: Specify the URL for the OVC server.
   POSMCLIENTSYNCUPDATER_BROWSER:
     Description: POSMCLIENTSYNCUPDATER_BROWSER
+    Default: true
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   POSMCLIENTSYNCUPDATER_CONCURRENTDEVICES:
     Description: POSMCLIENTSYNCUPDATER_CONCURRENTDEVICES
+    Default: 4
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   POSMCLIENTSYNCUPDATER_CONCURRENTSTORES:
     Description: POSMCLIENTSYNCUPDATER_CONCURRENTSTORES
+    Default: 4
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   POSMCLIENTSYNCUPDATER_STORE:
     Description: POSMCLIENTSYNCUPDATER_STORE
+    Default: All
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   SCOPE:
     Description: SCOPE
+    Default: extended
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
   USERNAME:
     Description: USERNAME
+    Default: customermanager
     Type: String
     ConstraintDescription: Specify the URL for the OVC server.
 
