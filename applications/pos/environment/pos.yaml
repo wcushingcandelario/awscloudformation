@@ -122,7 +122,7 @@ Parameters:
   InstanceType:
     Description: Instance Type.
     Type: String
-    Default: t2.small
+    Default: t2.large
     ConstraintDescription: 'The type of instance that the POS will run on eg. t2.small, m3.medium, etc'
   SSHKeyName:
     Description: SSH Key Name.
