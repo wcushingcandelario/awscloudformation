@@ -919,3 +919,124 @@ Resources:
       TTL: '60'
       ResourceRecords:
       - !GetAtt PublicLoadBalancer.DNSName
+
+  POSServerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+
+  POSServerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: POSServerRole
+
+  POSServerPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "POSServer"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action: "ec2:DescribeInstances"
+            Resource: "*"
+          -
+            Effect: "Allow"
+            Action: "ec2:DescribeTags"
+            Resource: "*"
+      Roles:
+      - Ref: POSServerRole
+
+  POSRolePolicies:
+    Type: "AWS::IAM::Policy"
+    DependsOn: POSServerRole
+    Properties:
+      PolicyName: POSQueuePermissions
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action:
+              - sqs:DeleteMessage
+              - sqs:DeleteMessageBatch
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+              - sqs:SendMessage
+              - sqs:SendMessageBatch
+            Resource:
+              - !GetAtt 'QueueTLogs.Arn'
+      Roles:
+      - Ref: POSServerRole
+
+  QueueTLogs:
+    Type: "AWS::SQS::Queue"
+    DependsOn: QueueTLogsDLQ
+    Properties:
+      MessageRetentionPeriod: !Ref MessageRetentionPeriodSetting
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "QueueTLogsDLQ"
+            - "Arn"
+        maxReceiveCount: !Ref MaxReceiveCountSetting
+
+  QueueTLogsDLQ:
+    Type: "AWS::SQS::Queue"
+
+  POSLoadBalancerCustomerAccessSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Load balancer incoming customer connections security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value:  POSLoadBalancerCustomerAccessSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        CidrIp: !Ref CustomerPOSAccessCIDR1
+
+  PublicPOSLoadBalancerCustomerAccessSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Load balancer incoming customer connections security group'
+      VpcId:
+        'Fn::ImportValue': !Sub '${ParentVPCStack}-VPC'
+      Tags:
+      - Key: Name
+        Value:  POSLoadBalancerCustomerAccessSecurityGroup
+      - Key: Project
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-ProjectName'
+      - Key: LiveIdentifier
+        Value:
+          'Fn::ImportValue': !Sub '${ParentVPCStack}-LiveIdentifier'
+      SecurityGroupIngress:
+      -
+        FromPort: 443
+        ToPort: 443
+        IpProtocol: tcp
+        CidrIp: 127.0.0.1/8
