@@ -114,6 +114,7 @@ Parameters:
   SolutionStackName:
     Description: 'The solution stack used'
     Type: String
+    Default: '64bit Amazon Linux 2016.09 v2.5.0 running Multi-container Docker 1.12.6 (Generic)'
 
 Conditions:
   NewRelicKeyPresent: !Not
@@ -164,7 +165,7 @@ Resources:
             'Fn::ImportValue': !Sub '${ParentVPCStack}-SubnetsPublic'
         - Namespace: aws:ec2:vpc
           OptionName: AssociatePublicIpAddress
-          Value: true
+          Value: false
 
         # Settings
         - Namespace: aws:elasticbeanstalk:healthreporting:system

@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "nonproduction"
+     },
+     {
+          "ParameterKey": "CustomerGatewayIpAddress",
+          "ParameterValue": "145.131.154.226"
+      },
+     {
+          "ParameterKey": "DestinationCidrBlock",
+          "ParameterValue": "10.0.0.0/16"
+      },
+     {
+          "ParameterKey": "DestinationName",
+          "ParameterValue": "mb-netherlands"
+      }
+]
