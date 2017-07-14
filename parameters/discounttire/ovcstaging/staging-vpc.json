@@ -1,0 +1,26 @@
+[
+    {
+         "ParameterKey": "ClassA",
+         "ParameterValue": "10"
+     },
+    {
+         "ParameterKey": "ClassB",
+         "ParameterValue": "208"
+     },
+    {
+         "ParameterKey": "ClassC",
+         "ParameterValue": "128"
+     },
+    {
+         "ParameterKey": "ProjectName",
+         "ParameterValue": "ovc-dt"
+     },
+    {
+         "ParameterKey": "LiveIdentifier",
+         "ParameterValue": "stage"
+     },
+    {
+         "ParameterKey": "CreateInternetGateway",
+         "ParameterValue": "false"
+     }
+]

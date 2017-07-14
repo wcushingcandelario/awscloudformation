@@ -9,6 +9,7 @@ Metadata:
       Parameters:
       - ClassA
       - ClassB
+      - ClassC
     - Label:
         default: 'OneView Configuration'
       Parameters:
@@ -17,14 +18,21 @@ Metadata:
 
 Parameters:
   ClassA:
-    Description: 'Class A of VPC (XXX.0.0.0/19)'
+    Description: 'Class A of VPC (XXX.0.0.0/18)'
     Type: Number
     Default: 10
     ConstraintDescription: 'Must be in the range [0-255]'
     MinValue: 0
     MaxValue: 255
   ClassB:
-    Description: 'Class B of VPC (0.XXX.0.0/19)'
+    Description: 'Class B of VPC (0.XXX.0.0/18)'
+    Type: Number
+    Default: 11
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
+  ClassC:
+    Description: 'Class C of VPC (0.0.XXX.0/18)'
     Type: Number
     Default: 11
     ConstraintDescription: 'Must be in the range [0-255]'
@@ -60,13 +68,13 @@ Resources:
   VPC:
     Type: 'AWS::EC2::VPC'
     Properties:
-      CidrBlock: !Sub '${ClassA}.${ClassB}.0.0/19'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.${ClassC}.0/18'
       EnableDnsSupport: true
       EnableDnsHostnames: true
       InstanceTenancy: default
       Tags:
       - Key: Name
-        Value: !Sub '${AWS::StackName}-${ClassA}.${ClassB}.0.0/19'
+        Value: !Sub '${AWS::StackName}-${ClassA}.${ClassB}.${ClassC}.0/18'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -77,7 +85,7 @@ Resources:
     Properties:
       Tags:
       - Key: Name
-        Value: !Sub '${AWS::StackName}-${ClassA}.${ClassB}.0.0/19'
+        Value: !Sub '${AWS::StackName}-${ClassA}.${ClassB}.${ClassC}.0/18'
       - Key: Project
         Value: !Sub '${ProjectName}'
       - Key: LiveIdentifier
@@ -92,7 +100,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [0, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.0.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.128.0/24'
       MapPublicIpOnLaunch: true
       VpcId: !Ref VPC
       Tags:
@@ -108,7 +116,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [0, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.1.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.129.0/24'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -123,7 +131,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [0, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.2.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.130.0/24'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -138,7 +146,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [1, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.3.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.131.0/24'
       MapPublicIpOnLaunch: true
       VpcId: !Ref VPC
       Tags:
@@ -154,7 +162,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [1, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.4.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.132.0/24'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -169,7 +177,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [1, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.5.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.133.0/24'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -184,7 +192,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [2, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.6.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.134.0/24'
       MapPublicIpOnLaunch: true
       VpcId: !Ref VPC
       Tags:
@@ -200,7 +208,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [2, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.7.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.135.0/24'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -215,7 +223,7 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       AvailabilityZone: !Select [2, !GetAZs '']
-      CidrBlock: !Sub '${ClassA}.${ClassB}.8.0/24'
+      CidrBlock: !Sub '${ClassA}.${ClassB}.136.0/24'
       VpcId: !Ref VPC
       Tags:
       - Key: Name
@@ -530,6 +538,11 @@ Outputs:
     Value: !Ref ClassB
     Export:
       Name: !Sub '${AWS::StackName}-ClassB'
+  ClassC:
+    Description: 'Class C.'
+    Value: !Ref ClassC
+    Export:
+      Name: !Sub '${AWS::StackName}-ClassC'
   ProjectName:
     Description: 'Project Name'
     Value: !Ref ProjectName

@@ -1,0 +1,18 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "ovcdevelopment"
+     },
+     {
+          "ParameterKey": "CustomerGatewayIpAddress",
+          "ParameterValue": "38.122.253.250"
+      },
+     {
+          "ParameterKey": "DestinationCidrBlock",
+          "ParameterValue": "192.168.0.0/16"
+      },
+     {
+          "ParameterKey": "DestinationName",
+          "ParameterValue": "ovc-office"
+      }
+]

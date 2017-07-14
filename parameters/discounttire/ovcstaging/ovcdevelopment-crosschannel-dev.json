@@ -1,0 +1,34 @@
+[{
+        "ParameterKey": "ParentVPCStack",
+        "ParameterValue": "ovcdevelopment"
+    },
+    {
+        "ParameterKey": "EnvironmentType",
+        "ParameterValue": "dev"
+    },
+    {
+        "ParameterKey": "SSHKeyName",
+        "ParameterValue": "discounttire-ops.pem"
+    },
+    {
+      "ParameterKey": "HostedZoneId",
+      "ParameterValue": "Z188DPNOUDAG5C"
+    },
+    {
+      "ParameterKey": "HostedZoneDomainName",
+      "ParameterValue": "ovcdtc.com"
+    },
+    {
+        "ParameterKey": "MongoURI",
+        "ParameterValue": "mongodb://root:root@mongodb-dev.ovcdtc.com:27000/dev_crosschannel?authSource=dev_crosschannel"
+    },
+    {
+         "ParameterKey": "NewRelicLicenseKey",
+         "ParameterValue": "95a41dcefa87d72a517e9604b3ff2cac24164e2c"
+     },
+     {
+         "ParameterKey": "SolutionStackName",
+         "ParameterValue": "64bit Amazon Linux 2016.09 v2.5.2 running Multi-container Docker 1.12.6 (Generic)"
+     }
+
+]

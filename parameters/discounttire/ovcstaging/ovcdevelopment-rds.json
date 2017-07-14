@@ -1,0 +1,38 @@
+[
+    {
+         "ParameterKey": "ParentVPCStack",
+         "ParameterValue": "ovcdevelopment"
+     },
+    {
+         "ParameterKey": "DBUser",
+         "ParameterValue": "root"
+     },
+    {
+         "ParameterKey": "DBInstanceName",
+         "ParameterValue": "dev"
+     },
+    {
+         "ParameterKey": "BackupRetentionPeriod",
+         "ParameterValue": "15"
+     },
+    {
+         "ParameterKey": "DBPassword",
+         "ParameterValue": "0n3v13w123"
+     },
+    {
+         "ParameterKey": "DBAllocatedStorage",
+         "ParameterValue": "100"
+     },
+    {
+         "ParameterKey": "MultiAZDatabase",
+         "ParameterValue": "false"
+     },
+    {
+         "ParameterKey": "HostedZoneResourceId",
+         "ParameterValue": "Z188DPNOUDAG5C"
+     },
+    {
+         "ParameterKey": "HostedZoneName",
+         "ParameterValue": "ovcdtc.com"
+     }
+]

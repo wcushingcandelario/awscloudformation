@@ -1,0 +1,50 @@
+[{
+        "ParameterKey": "ParentVPCStack",
+        "ParameterValue": "ovcdevelopment"
+    },
+    {
+        "ParameterKey": "EnvironmentType",
+        "ParameterValue": "dev"
+    },
+    {
+        "ParameterKey": "SSHKeyName",
+        "ParameterValue": "discounttire-ops.pem"
+    },
+    {
+        "ParameterKey": "OVCURL",
+        "ParameterValue": "https://dev.ovcdtc.com"
+    },
+    {
+        "ParameterKey": "MONGOURL",
+        "ParameterValue": "mongodb://mongodb01-dev.ovcdtc.com:27000,mongodb02-dev.ovcdtc.com:27000,mongodb03-dev.ovcdtc.com:27000/dev_promo"
+    },
+    {
+        "ParameterKey": "DASHPATH",
+        "ParameterValue": "https://dev.ovcdtc.com/ovcdashboard/"
+    },
+    {
+        "ParameterKey": "MAXPROMOID",
+        "ParameterValue": "999999999"
+    },
+    {
+        "ParameterKey": "PROMOPATHPROTOCOL",
+        "ParameterValue": "http"
+    },
+    {
+         "ParameterKey": "HostedZoneId",
+         "ParameterValue": "Z188DPNOUDAG5C"
+     },
+    {
+         "ParameterKey": "HostedZoneDomainName",
+         "ParameterValue": "ovcdtc.com"
+     },
+    {
+         "ParameterKey": "NewRelicLicenseKey",
+         "ParameterValue": "8f48fff993ed3be8fa98c0c1b294a29c6057ae47"
+     },
+     {
+         "ParameterKey": "SolutionStackName",
+         "ParameterValue": "64bit Amazon Linux 2016.09 v2.5.2 running Multi-container Docker 1.12.6 (Generic)"
+     }
+
+]

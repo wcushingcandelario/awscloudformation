@@ -1,20 +1,8 @@
 [
     {
          "ParameterKey": "ParentVPCStack",
-         "ParameterValue": "ovcstaging"
+         "ParameterValue": "ovcdevelopment"
      },
-     {
-          "ParameterKey": "HostedZoneId",
-          "ParameterValue": "Z188DPNOUDAG5C"
-      },
-     {
-          "ParameterKey": "HostedZoneDomainName",
-          "ParameterValue": "ovcdtc.com"
-      },
-     {
-          "ParameterKey": "SolutionStackName",
-          "ParameterValue": "64bit Amazon Linux 2017.03 v2.6.0 running Docker 1.12.6"
-      },
       {
           "ParameterKey": "SQLHOST",
           "ParameterValue": "mysql-dev.ovcdtc.com"
@@ -28,8 +16,12 @@
           "ParameterValue": "uat_xdb"
       },
       {
+          "ParameterKey": "EnvironmentType",
+          "ParameterValue": "uat"
+      },
+      {
           "ParameterKey": "SSHKeyName",
-          "ParameterValue": "discounttire-ops"
+          "ParameterValue": "discounttire-ops.pem"
       },
       {
           "ParameterKey": "SQLUSER",
